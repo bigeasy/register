@@ -1,4 +1,6 @@
-respond(function (step, response) {
+#!/usr/bin/env node
+
+require('../../..')(function (step, response) {
   var fs = require('fs');
 
   step(function () {
