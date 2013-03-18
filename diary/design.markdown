@@ -28,3 +28,17 @@ Register is so name because it is CGI inspired, and Register has the sound of
 CGI within it. Register is a synonym for directory, except for a slightly
 different meaning of directory that the one we use in computing, but there are
 enough bits and pieces here to help you remember why. 
+
+## SQL
+
+Considering a Reltable based language.
+
+```
+SELECT *
+  FROM employee
+ WHERE lastName like = { '%' + ($.lastName || '')  }
+ OFFSET { $.offset || 0 } LIMIT { Math.min($.limit || 10, 10) }
+```
+
+Then the values are all pulled from a context, and that context in the case a
+query is the parsed query.
