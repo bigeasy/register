@@ -42,3 +42,11 @@ SELECT *
 
 Then the values are all pulled from a context, and that context in the case a
 query is the parsed query.
+
+## A Little Too Easy
+
+I keep waiting to hit a wall that requires me to stop and spend days on design,
+but simply doing the next obvious thing seems to be working out for this
+project.  Perhaps the notion of CGI-like is more than enough direction.
+
+It is circumspect, this steady progress.
