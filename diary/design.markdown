@@ -31,7 +31,7 @@ enough bits and pieces here to help you remember why.
 
 ## SQL
 
-Considering a Reltable based language.
+Considering a Relatable based language.
 
 ```
 SELECT *
@@ -50,3 +50,11 @@ but simply doing the next obvious thing seems to be working out for this
 project.  Perhaps the notion of CGI-like is more than enough direction.
 
 It is circumspect, this steady progress.
+
+## Invocation
+
+Started out using the Proof `require` pattern, but I'm going to switch to a
+Cake-like pattern of global functions because it will be better, easier to
+implement, but philosophically the individual scripts are not executables, like
+Proof, they are not meant to stand on their own. It will be much easier to
+implement, not requiring a custom require for web server use case.
