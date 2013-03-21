@@ -13,9 +13,10 @@
   { "type": "git"
   , "url": "http://github.com/bigeasy/register.git"
   }
-, "scripts" : { "test": "proof t/*/*.t.js" }
+, "scripts" : { "test": "proof test t/*/*.t.js" }
 , "devDependencies":
-  { "proof": "0.0.24"
+  { "proof": "0.0.27"
+  , "connect": "~2"
   , "uglify-js": "~1.3"
   }
 , "dependencies": { "cadence": "0.0.12" }
