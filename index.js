@@ -1,6 +1,13 @@
 var cadence = require('cadence'), ok = require('assert'), __slice = [].slice;
 
-module.exports = function (program) {
+function execute (vargs) {
+  if (vargs[0] === bootstrap) {
+    bootstrap = serve; 
+    return {};
+  }
+
+  var program = vargs.shift();
+
   function parameterize (step, context) {
     var $ = /^function\s*[^(]*\(([^)]*)\)/.exec(program.toString());
     ok($, "bad function");
@@ -28,3 +35,9 @@ module.exports = function (program) {
     if (error) throw error;
   });
 }
+
+var register = execute;
+
+function bootstrap () { return register(__slice.call(arguments)) }
+
+module.exports = bootstrap;
