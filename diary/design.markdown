@@ -58,3 +58,19 @@ Cake-like pattern of global functions because it will be better, easier to
 implement, but philosophically the individual scripts are not executables, like
 Proof, they are not meant to stand on their own. It will be much easier to
 implement, not requiring a custom require for web server use case.
+
+## Inbox
+
+Could be the case that `routify` belongs somewhere else? Probably, yes. Sadly,
+that means finding a new name, which is going to be a real burden. `routify` is
+available, but that was a working name that was meant to feel like it was
+working, that I would want to replace.
+
+Perhaps it belongs in `reactor`, since it can only work with `reactor`. I'll
+move it there. The only name I can find so far, besides `delta`, which I'd like
+to use for a difference algorithm, is going to be indirect. All it amounts to is
+a find, really, and it creates patterns that are analogous to reactor patterns,
+so I'd need to abstract it, then shim it back to what it is now, so it probably
+does belong in `reactor`.
+
+Or maybe I begin to do things like `reactor.directory`.
