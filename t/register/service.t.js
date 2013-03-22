@@ -16,7 +16,7 @@ require('proof')(1, function (step, equal) {
   }, function (message) {
     var on = step('on');
     message.setEncoding('utf8');
-    on(message, 'data', []); 
+    on(message, 'data', []);
     on(message, 'end');
   }, function (data) {
     equal(data.join(''), 'Hello, World!\n', 'connect');
