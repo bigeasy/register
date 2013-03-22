@@ -15,10 +15,9 @@ function execute (program, parameters, input, callback) {
 
 require('proof')(1, function (step, equal, say) {
   step(function () {
-    var hello = path.join(__dirname, 'fixtures/hello.t.js');
-    fs.readFile(hello, 'utf8', step());
+    var hello = path.join(__dirname, 'fixtures/hello.js');
     execute(hello, [], '', step());
-  }, function (body, code, stdout, stderr) {
-    equal(stdout, body, 'execute');
+  }, function (code, stdout, stderr) {
+    equal(stdout, 'Hello, World!\n', 'execute');
   });
 });

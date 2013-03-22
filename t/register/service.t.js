@@ -1,16 +1,16 @@
 #!/usr/bin/env node
 
 require('proof')(1, function (step, equal) {
-  var connect = require('connect'), http = require('http'), app;
+  var connect = require('connect'), http = require('http'), path = require('path'), app;
   step(function () {
     var on = step('on');
     app = connect()
-      .use(require('../../service').create())
+      .use(require('../../service').create(path.join(__dirname, 'fixtures')))
       .listen(8082);
 /*    on(app, 'listen');
   }, function () {
     var on = step('on');*/
-    var req = http.get("http://127.0.0.1:8082/");
+    var req = http.get("http://127.0.0.1:8082/hello");
     on(req, 'response');
     on(req, 'error');
   }, function (message) {
