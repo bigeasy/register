@@ -59,6 +59,21 @@ implement, but philosophically the individual scripts are not executables, like
 Proof, they are not meant to stand on their own. It will be much easier to
 implement, not requiring a custom require for web server use case.
 
+## Scripts
+
+Scripts are going to use some jQuery conventions, or one key one. If the script
+returns false, it means we're not done. It can return false immedately or using
+a callback.
+
+This is Cadence. Cadence is why Register is ready for release already. There is
+a lot of potential built into Cadence, it's logic, and the time I've spent
+working with it with Proof, it adds up.
+
+Thus, with Cadence, I can use a pipe to send a piped response and be done with
+it, or I can use a sub-cadence to check a database and throw a redirect.
+
+Either way.
+
 ## Inbox
 
 Could be the case that `routify` belongs somewhere else? Probably, yes. Sadly,
