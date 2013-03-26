@@ -1,7 +1,7 @@
 { "name": "register"
 , "description": "A CGI-like router that maps URLs to JavaScript layed out on a file system."
 , "author": "Alan Gutierrez"
-, "version": "0.0.1"
+, "version": "0.0.0"
 , "keywords": [ "cgi", "template", "html", "xml", "text", "xhtml", "async", "asynchronous" ]
 , "licenses": [
   { "type": "MIT"
