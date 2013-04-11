@@ -89,3 +89,14 @@ so I'd need to abstract it, then shim it back to what it is now, so it probably
 does belong in `reactor`.
 
 Or maybe I begin to do things like `reactor.directory`.
+
+It could be the case that Reactor is the CGI serving thing, and Register is
+simply an implementation of basic scripts. Maybe there is a shebang line or
+equiv so that one pass through does it all, so there's some way to take a sip of
+the file and see which handler will work with it.
+
+## Concerns and Decisions
+
+Do I add an `error`, `redirect` and `reroute` method to the response object or
+do I create a new `register` object? I belive the latter, for now. The
+`response` object is like a global namespace.
