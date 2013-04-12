@@ -1,4 +1,4 @@
-# Register
+# Register [![Build Status](https://secure.travis-ci.org/bigeasy/register.png?branch=master)](http://travis-ci.org/bigeasy/register) [![Coverage Status](https://coveralls.io/repos/bigeasy/register/badge.png?branch=master)](https://coveralls.io/r/bigeasy/register) [![NPM version](https://badge.fury.io/js/register.png)](http://badge.fury.io/js/register)
 
 A CGI-like router for building HTTP APIs that serves JavaScript programs from a
 directory.
