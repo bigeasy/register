@@ -100,3 +100,8 @@ the file and see which handler will work with it.
 Do I add an `error`, `redirect` and `reroute` method to the response object or
 do I create a new `register` object? I belive the latter, for now. The
 `response` object is like a global namespace.
+
+## Inbox
+
+Testing execution, need to export the execute function, I believe, and use a
+mock standard out and standard error.
