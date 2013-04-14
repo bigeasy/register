@@ -18,6 +18,6 @@ require('proof')(1, function (step, equal, say) {
     var hello = path.join(__dirname, 'fixtures/hello.js');
     execute(hello, [], '', step());
   }, function (code, stdout, stderr) {
-    equal(stdout, 'Hello, World!\n', 'execute');
+    equal(stdout, 'Content-Type: text/plain\n\nHello, World!\n', 'execute');
   });
 });
