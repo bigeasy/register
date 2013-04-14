@@ -33,7 +33,7 @@ function serve (vargs) {
 
 var results = [];
 
-function execute (vargs) {
+function execute (vargs, out) {
   if (!vargs.length) {
     register = serve;
     return results;
@@ -42,15 +42,30 @@ function execute (vargs) {
   var program = vargs.shift();
 
   cadence(function (step) {
-    var context = {};
+    var context = { headers: {} };
     context.step = step;
     context.response = {
       headers: {},
       setHeader: function (header, value) {
         this.headers[header] = value;
       },
-      end: function (value) {
-        process.stdout.write(value);
+      sendHeaders: function () {
+        var keys = Object.keys(this.headers);
+        keys.forEach(function (key) {
+          out.write(key + ': ' + context.response.headers[key] + '\n');
+        });
+        if (keys.length) {
+          out.write('\n');
+        }
+        keys.length = 0;
+      },
+      write: function () {
+        this.sendHeaders();
+        out.write.apply(out, arguments)
+      },
+      end: function () {
+        this.sendHeaders();
+        out.end.apply(out, arguments)
       }
     }
     step(function () {
@@ -63,6 +78,7 @@ function execute (vargs) {
 
 var register = execute;
 
-function bootstrap () { return register(__slice.call(arguments)) }
+function bootstrap () { return register(__slice.call(arguments), process.stdout) }
 
 exports.index = bootstrap;
+exports.execute = execute;
