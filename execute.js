@@ -3,15 +3,14 @@ var stream = require('stream'),
     cadence = require('cadence'),
     __slice = [].slice;
 
-var __slice = [].slice;
-
+/*
 function die () {
   console.log.apply(console, __slice.call(arguments, 0));
   process.exit(1);
 }
 
 function say () { console.log.apply(console, __slice.call(arguments, 0)) }
-
+*/
 
 function parameterize (program, context) {
   var $ = /^function\s*[^(]*\(([^)]*)\)/.exec(program.toString());
@@ -20,21 +19,6 @@ function parameterize (program, context) {
     return context[parameter];
   });
 }
-
-function serve (vargs) {
-  var program = vargs.shift();
-
-  var handler = cadence(function (step, request, response) {
-    var context = { step: step, request: request, response: response };
-    step(function () {
-      program.apply(this, parameterize(program, context));
-    });
-  });
-
-  results.push(handler);
-}
-
-var results = [];
 
 function execute (vargs) {
   var caller = vargs.shift(), program = vargs.shift();
@@ -86,9 +70,6 @@ function execute (vargs) {
       step(null, headers, output);
     });
   });
-  /*.call({}, function (error) {
-    if (error) throw error;
-  });*/
 
   if (caller === require.main) {
     var output = new stream.PassThrough();
