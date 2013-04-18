@@ -105,3 +105,6 @@ do I create a new `register` object? I belive the latter, for now. The
 
 Testing execution, need to export the execute function, I believe, and use a
 mock standard out and standard error.
+
+What about streaming input? Do we always want to parse? Or do we want to only
+parse if it is specified by the script?
