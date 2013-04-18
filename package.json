@@ -20,5 +20,5 @@
   , "reactor": "0.0.5"
   , "uglify-js": "~1.3"
   }
-, "dependencies": { "cadence": "0.0.12" }
+, "dependencies": { "cadence": "0.0.15" }
 }
