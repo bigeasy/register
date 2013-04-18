@@ -45,34 +45,45 @@ function execute (vargs) {
       context.request = options.request;
       context.response = options.response;
     } else {
-      context.step = step;
-      context.response = {
-        headers: {},
-        setHeader: function (header, value) {
-          this.headers[header] = value;
-        },
-        sendHeaders: function () {
-          var keys = Object.keys(this.headers);
+      var headers = {}, headersSent = ! options.printHeaders, sendHeaders,
+          output = options.output || new stream.PassThrough;
+      if (require.main === caller) {
+        sendHeaders = function () {
+          var keys = Object.keys(headers);
           keys.forEach(function (key) {
-            options.out.write(key + ': ' + context.response.headers[key] + '\n');
+            headers[key].forEach(function (value) {
+              output.write(key + ': ' + value + '\n');
+            });
           });
           if (keys.length) {
-            options.out.write('\n');
+            output.write('\n');
           }
-          keys.length = 0;
+        }
+      } else {
+        sendHeaders = function () {}
+      }
+
+      context.step = step;
+      context.response = {
+        setHeader: function (header, value) {
+          headers[header] = Array.isArray(value) ? value : [value];
         },
         write: function () {
-          this.sendHeaders();
-          options.out.write.apply(options.out, arguments)
+          if (!headersSent) sendHeaders();
+          headersSent = true;
+          output.write.apply(output, arguments)
         },
         end: function () {
-          this.sendHeaders();
-          options.out.end.apply(options.out, arguments)
+          if (!headersSent) sendHeaders();
+          headersSent = true;
+          output.end.apply(output, arguments)
         }
       }
     }
     step(function () {
       program.apply(this, parameterize(program, context));
+    }, function () {
+      step(null, headers, output);
     });
   });
   /*.call({}, function (error) {
@@ -80,9 +91,9 @@ function execute (vargs) {
   });*/
 
   if (caller === require.main) {
-    var pipe = new stream.PassThrough();
-    pipe.pipe(process.stdout);
-    script({ out: pipe }, function (error) {
+    var output = new stream.PassThrough();
+    output.pipe(process.stdout);
+    script({ output: output, printHeaders: true }, function (error) {
       if (error) throw error;
     });
   } else {
