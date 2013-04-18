@@ -1,4 +1,7 @@
-var cadence = require('cadence'), ok = require('assert'), __slice = [].slice;
+var stream = require('stream'),
+    ok = require('assert'),
+    cadence = require('cadence'),
+    __slice = [].slice;
 
 var __slice = [].slice;
 
@@ -33,52 +36,63 @@ function serve (vargs) {
 
 var results = [];
 
-function execute (vargs, out) {
-  if (!vargs.length) {
-    register = serve;
-    return results;
-  }
+function execute (vargs) {
+  var caller = vargs.shift(), program = vargs.shift();
 
-  var program = vargs.shift();
-
-  cadence(function (step) {
-    var context = { headers: {} };
-    context.step = step;
-    context.response = {
-      headers: {},
-      setHeader: function (header, value) {
-        this.headers[header] = value;
-      },
-      sendHeaders: function () {
-        var keys = Object.keys(this.headers);
-        keys.forEach(function (key) {
-          out.write(key + ': ' + context.response.headers[key] + '\n');
-        });
-        if (keys.length) {
-          out.write('\n');
+  var script = cadence(function (step, options) {
+    var context = { headers: {}, step: step };
+    if (options.response && options.request) {
+      context.request = options.request;
+      context.response = options.response;
+    } else {
+      context.step = step;
+      context.response = {
+        headers: {},
+        setHeader: function (header, value) {
+          this.headers[header] = value;
+        },
+        sendHeaders: function () {
+          var keys = Object.keys(this.headers);
+          keys.forEach(function (key) {
+            options.out.write(key + ': ' + context.response.headers[key] + '\n');
+          });
+          if (keys.length) {
+            options.out.write('\n');
+          }
+          keys.length = 0;
+        },
+        write: function () {
+          this.sendHeaders();
+          options.out.write.apply(options.out, arguments)
+        },
+        end: function () {
+          this.sendHeaders();
+          options.out.end.apply(options.out, arguments)
         }
-        keys.length = 0;
-      },
-      write: function () {
-        this.sendHeaders();
-        out.write.apply(out, arguments)
-      },
-      end: function () {
-        this.sendHeaders();
-        out.end.apply(out, arguments)
       }
     }
     step(function () {
       program.apply(this, parameterize(program, context));
     });
-  }).call({}, function (error) {
-    if (error) throw error;
   });
+  /*.call({}, function (error) {
+    if (error) throw error;
+  });*/
+
+  if (caller === require.main) {
+    var pipe = new stream.PassThrough();
+    pipe.pipe(process.stdout);
+    script({ out: pipe }, function (error) {
+      if (error) throw error;
+    });
+  } else {
+    caller.exports = script;
+  }
 }
 
 var register = execute;
 
-function bootstrap () { return register(__slice.call(arguments), process.stdout) }
+function bootstrap () { return register(__slice.call(arguments)) }
 
 exports.index = bootstrap;
 exports.execute = execute;

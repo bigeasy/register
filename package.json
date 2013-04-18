@@ -15,10 +15,10 @@
   }
 , "scripts" : { "test": "proof platform win32 && proof test */*/*.t.js || t/test" }
 , "devDependencies":
-  { "proof": "0.0.27"
+  { "proof": "0.0.28"
   , "connect": "~2"
   , "reactor": "0.0.5"
   , "uglify-js": "~1.3"
   }
-, "dependencies": { "cadence": "0.0.12" }
+, "dependencies": { "cadence": "0.0.15" }
 }
