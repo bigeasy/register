@@ -125,7 +125,7 @@ get.
 
 ## Writing Scripts
 
-A Regsiter script is a JavaScript program that wraps a JavaScript function. It
+A Register script is a JavaScript program that wraps a JavaScript function. It
 is a simple construct that maps a URL to a single function through a directory
 tree. The function acts as a run-of-the-mill request handler function for a
 server created with the Node.js HTTP API. It inspects the `request` object and
@@ -152,7 +152,7 @@ The `request` object has a URL property, but it is just a string. To do anything
 meaningful with that URL, we need to parse it &mdash; we need to split it up
 into it's component parts.
 
-Regsiter will save us a step and give us a parsed `url` if we request it. We
+Register will save us a step and give us a parsed `url` if we request it. We
 request a parsed url simply by adding the parameter `url` to our handler
 function.
 
