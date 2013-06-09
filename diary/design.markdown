@@ -27,7 +27,7 @@ ought to read...
 Register is so name because it is CGI inspired, and Register has the sound of
 CGI within it. Register is a synonym for directory, except for a slightly
 different meaning of directory that the one we use in computing, but there are
-enough bits and pieces here to help you remember why. 
+enough bits and pieces here to help you remember why.
 
 ## SQL
 
