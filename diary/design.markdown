@@ -62,7 +62,7 @@ implement, not requiring a custom require for web server use case.
 ## Scripts
 
 Scripts are going to use some jQuery conventions, or one key one. If the script
-returns false, it means we're not done. It can return false immedately or using
+returns false, it means we're not done. It can return false immediately or using
 a callback.
 
 This is Cadence. Cadence is why Register is ready for release already. There is
