@@ -115,3 +115,12 @@ how do you buffer in that way? You can slurp I guess.
 Why not make this simple by making it difficult? Can the register program just
 start an HTTP server for the duration of a command line invocation for the sake
 of testing?
+
+## Signifcant Change
+
+Now that I can see that it would be easier to fire off the command line using a
+runner, I'm not starting to want to move away from the too clever use of the
+commad line. I'm going to build a runner anyway, so I might as well go ahead
+and make it so that it will run one off scripts. If if do this, yes, what I had
+was too clever by half, it's not important, this is not he most imporant work
+that I'm doing.
