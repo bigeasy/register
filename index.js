@@ -80,9 +80,9 @@ function execute () {
       var $ = /^([^=])*(?:=(.*))$/.exec(pair);
       query[$[1]] = $[2];
     });
-    var request = {
-      url: url.parse(url.format({ pathname: caller.filename, query: query }), true)
-    }
+    var request = {};
+    request.url = url.parse(url.format({ pathname: caller.filename, query: query }), true);
+    request.params = request.url.query;
     output.pipe(process.stdout);
     script({ request: request, output: output, printHeaders: true }, function (error) {
       if (error) throw error;
