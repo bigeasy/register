@@ -3,8 +3,7 @@ var url = require('url');
 module.exports = function (require) {
   return function (script, parameters, callback) {
     var request = {};
-    request.url =  url.parse(url.format({ pathname: script, query: parameters }), true);
-    request.params =  request.url.query;
+    request.url =  url.format({ pathname: script, query: parameters });
     require(script)({ request: request }, callback);
   }
 }

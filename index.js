@@ -1,5 +1,6 @@
 var stream = require('stream'),
     ok = require('assert'),
+    connect = require('connect'),
     cadence = require('cadence'),
     __slice = [].slice;
 
@@ -20,6 +21,20 @@ function parameterize (program, context) {
   });
 }
 
+var middleware = [ connect.bodyParser(), connect.query() ];
+
+function pipeline (methods, request, response, callback) {
+  if (methods.length) {
+    var method = methods.shift();
+    method(request, response, function (error) {
+      if (error) callback(error);
+      else pipeline(methods, request, response, callback);
+    });
+  } else {
+    callback(null, request, response);
+  }
+}
+
 function execute () {
   var vargs = __slice.call(arguments),
       caller = vargs.shift(), program = vargs.shift();
@@ -28,6 +43,11 @@ function execute () {
     var context = { headers: {}, step: step };
     if (options.request) {
       context.request = options.request;
+    } else if (!context.request) {
+      context.request = {};
+    }
+    if (!context.request.headers) {
+      context.request.headers = {};
     }
     if (options.response) {
       context.response = options.response;
@@ -67,7 +87,11 @@ function execute () {
         }
       }
     }
+
     step(function () {
+      pipeline(middleware.slice(), context.request, context.response, step());
+    }, function () {
+      context.request.params = context.request.query;
       program.apply(this, parameterize(program, context));
     }, function () {
       step(null, headers, output);
@@ -81,8 +105,7 @@ function execute () {
       query[$[1]] = $[2];
     });
     var request = {};
-    request.url = url.parse(url.format({ pathname: caller.filename, query: query }), true);
-    request.params = request.url.query;
+    request.url = url.format({ pathname: caller.filename, query: query });
     output.pipe(process.stdout);
     script({ request: request, output: output, printHeaders: true }, function (error) {
       if (error) throw error;

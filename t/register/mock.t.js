@@ -4,7 +4,7 @@ var fs = require('fs'), path = require('path'), stream = require('stream'),
     request = require('../../request')(require);
 
 require('proof')(4, function (step, deepEqual, say) {
-  require('./fixtures/hello.cgi.js')({}, function (error, headers, body) {
+  request('./fixtures/hello.cgi.js', {}, function (error, headers, body) {
     if (error) throw error;
     body.setEncoding('utf8');
     deepEqual(headers, { 'Content-Type': [ 'text/plain' ] }, 'headers');
