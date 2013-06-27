@@ -15,7 +15,7 @@ function execute (program, parameters, input, callback) {
 
 require('proof')(1, function (step, equal, say) {
   step(function () {
-    var hello = path.join(__dirname, 'fixtures/hello.js');
+    var hello = path.join(__dirname, 'fixtures/hello.cgi.js');
     execute(hello, [], '', step());
   }, function (code, stdout, stderr) {
     equal(stdout, 'Content-Type: text/plain\n\nHello, World!\n', 'execute');
