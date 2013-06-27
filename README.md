@@ -50,14 +50,16 @@ request wrapper in the test framework of your choice.
 
 ```javascript
 var deepEqual = require ('assert').deepEqual;
-var request = require('register/request');
+var request = require('register/request')(require);
 
 request('./hello.cgi.js', { name: 'register', number: 1 }, function (headers, body) {
   deepEqual(headers['Content-Type'], 'text/plain');
   deepEqual(JSON.parse(body), { name: 'register', number: 1 });
 });
-
 ```
+
+Note how we pass our `require` to the `request` function builder. It allows the
+`request` function to find scripts relative to the location of the test.
 
 ### Serving Up Your Register Scripts
 
@@ -178,6 +180,32 @@ Must be sent before body is sent.
 ## Asynchronous Control Flow
 
 With Cadence.
+
+## API
+
+### `register = require('register')`
+
+### `request = require('register/request')(require)`
+
+Exports a single function used to build a request wrapper. Pass
+
+#### `request(path, query, callback(error, headers, body))`
+
+Invokes a GET request on the Register script at `path`. The script path is
+relative to the `require` of the calling script. (See the function builder above
+for details on how that is possible.)
+
+The `query` is an object used to form the query part of a query string. The
+`callback` is the standard callback for a Register script with the following
+parameters;
+
+ * `path` &mdash; Path to the Register script relative to the calling module.
+ * `query` &mdash; An object used to form the query part of a query string.
+ * `callback` &mdash; the standard callback for a mocked call to Register script.
+ ** `error` &mdash; error if any.
+ ** `headers` &mdash; a map of headers.
+ ** `body` &mdash; the body as a pass-through stream.
+
 
 ## Change Log
 

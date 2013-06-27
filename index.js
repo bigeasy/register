@@ -26,8 +26,10 @@ function execute () {
 
   var script = cadence(function (step, options) {
     var context = { headers: {}, step: step };
-    if (options.response && options.request) {
+    if (options.request) {
       context.request = options.request;
+    }
+    if (options.response) {
       context.response = options.response;
     } else {
       var headers = {}, headersSent = ! options.printHeaders, sendHeaders,
