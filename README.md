@@ -9,7 +9,14 @@ directory.
 
 ## Getting Started
 
+Register is a walk down memory lane to the good old days of Perl's CGI module.
+It is a CGI emulator for people who want to just start hacking away at the
+web program, script by script, until it's done.
 
+Register is great for writing web APIs. I built it to complement
+[Stencil](https://github.com/bigeasy/stencil), which is an API-only template
+language; instead of MVC, you have templates over and API. Because of this,
+Register focuses on building an API, not on generating HTML.
 
 ### Install
 
@@ -19,14 +26,45 @@ Get Register with NPM.
 install npm register
 ```
 
-### Minimal Register Script
+Make a directory in which to build your Register application.
 
-Create a register script, give it a name like `params.cgi.js`.
+```console
+$ mkdir ./app
+$ vim ./app/greet.cgi.js
+```
+
+Then you want to create a Register program.
 
 ```javascript
-require('register')(function (request, response) {
+require('register')(module, function (params, response) {
   response.setHeader('Content-Type', 'text/plain');
-  response.end(JSON.stringify(request.url.query || {}) + '\n');
+  response.end(params.greeting + ', World!');
+});
+```
+
+Now you can run your Register web application.
+
+```javascript
+$ register ./app
+Register listening on port 8386 pid 981.
+```
+
+Test it out from the command line.
+
+```
+$ curl http://localhost:8386/greet?greeting=Hello
+TK What does curl say here? Or what switches do I use go get only the body?
+Hello, World!
+```
+
+### Minimal Register Script
+
+A minimal Register script will set a content type and write a result.
+
+```javascript
+require('register')(function (params, response) {
+  response.setHeader('Content-Type', 'text/plain');
+  response.end(JSON.stringify(params || {}) + '\n');
 });
 ```
 
@@ -53,8 +91,8 @@ var deepEqual = require ('assert').deepEqual;
 var request = require('register/request')(require);
 
 request('./hello.cgi.js', { name: 'register', number: 1 }, function (headers, body) {
-  deepEqual(headers['Content-Type'], 'text/plain');
-  deepEqual(JSON.parse(body), { name: 'register', number: 1 });
+  deepEqual(headers['Content-Type'], 'text/plain', 'headers are copacetic');
+  deepEqual(JSON.parse(body), { name: 'register', number: 1 }, 'body is copacetic');
 });
 ```
 
@@ -62,6 +100,10 @@ Note how we pass our `require` to the `request` function builder. It allows the
 `request` function to find scripts relative to the location of the test.
 
 ### Serving Up Your Register Scripts
+
+TK: Run the register server.
+
+### Embedding Register in Your Web Application
 
 Register works with Sencha Connect to add Register scripts to your web service.
 We can create a service using a directory and add it to a Sencha Connect app.
