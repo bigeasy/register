@@ -75,9 +75,16 @@ function execute () {
   });
 
   if (caller === require.main) {
-    var output = new stream.PassThrough();
+    var output = new stream.PassThrough(), url = require('url'), query = {};
+    process.argv.slice(2).forEach(function (pair) {
+      var $ = /^([^=])*(?:=(.*))$/.exec(pair);
+      query[$[1]] = $[2];
+    });
+    var request = {
+      url: url.parse(url.format({ pathname: caller.filename, query: query }), true)
+    }
     output.pipe(process.stdout);
-    script({ output: output, printHeaders: true }, function (error) {
+    script({ request: request, output: output, printHeaders: true }, function (error) {
       if (error) throw error;
     });
   } else {

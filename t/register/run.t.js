@@ -13,11 +13,16 @@ function execute (program, parameters, input, callback) {
   });
 }
 
-require('proof')(1, function (step, equal, say) {
+require('proof')(2, function (step, equal, say) {
   step(function () {
     var hello = path.join(__dirname, 'fixtures/hello.cgi.js');
     execute(hello, [], '', step());
   }, function (code, stdout, stderr) {
     equal(stdout, 'Content-Type: text/plain\n\nHello, World!\n', 'execute');
+  }, function () {
+    var params = path.join(__dirname, 'fixtures/params.cgi.js');
+    execute(params, [ 'a==1', 'b=a b' ], '', step());
+  }, function (code, stdout, stderr) {
+    equal(stdout, 'Content-Type: text/plain\n\n{"a":"=1","b":"a b"}\n', 'params');
   });
 });
