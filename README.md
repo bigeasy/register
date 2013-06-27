@@ -65,7 +65,7 @@ Register works with Sencha Connect to add Register scripts to your web service.
 We can create a service using a directory and add it to a Sencha Connect app.
 
 ```javascript
-var service = require('regsiter/service');
+var service = require('register/service');
 var connect = require('connect');
 
 var app = connect()
