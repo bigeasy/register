@@ -111,3 +111,7 @@ parse if it is specified by the script?
 
 Guessing MIME of inputs from testing; we can look for an initial `[` or `{`, but
 how do you buffer in that way? You can slurp I guess.
+
+Why not make this simple by making it difficult? Can the register program just
+start an HTTP server for the duration of a command line invocation for the sake
+of testing?
