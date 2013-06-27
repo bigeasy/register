@@ -4,7 +4,7 @@ A CGI-like router for building HTTP APIs that serves JavaScript programs from a
 directory.
 
 ```
- 119  501 3467 README.md
+ 191  847 5823 README.md
 ```
 
 ## Getting Started
@@ -23,7 +23,7 @@ install npm register
 
 Create a register script, give it a name like `params.cgi.js`.
 
-```
+```javascript
 require('register')(function (request, response) {
   response.setHeader('Content-Type', 'text/plain');
   response.end(JSON.stringify(request.url.query || {}) + '\n');
@@ -35,7 +35,7 @@ require('register')(function (request, response) {
 You can now run you script from the command line to debug it. You can run it
 directly or run it through a debugger.
 
-```
+```javascript
 $ node params.cgi.js 'name=register&number=1'
 Content-Type: text/plain
 
@@ -48,7 +48,7 @@ Testing your register scripts is simplified by a mock request wrapper. Here we
 create at test that is a simple Node.js program, but you can use the mock
 request wrapper in the test framework of your choice.
 
-```
+```javascript
 var deepEqual = require ('assert').deepEqual;
 var request = require('register/request');
 
