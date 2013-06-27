@@ -13,6 +13,12 @@ for file in $(find t -type d -name .AppleDouble -prune -o -name \*.t.js -print);
   fi
 done
 
+node_modules/.bin/istanbul cover -x 't/**' t/register/fixtures/hello.cgi.js > /dev/null 2>&1
+if [ -e coverage/coverage.json ]; then
+  mv coverage/coverage.json coverage/coverage$count.json
+  count=$(expr $count + 1)
+fi
+
 node_modules/.bin/istanbul report --root coverage --dir coverage > /dev/null
 
 sed -i -e s,'^SF:'`pwd`/,SF:, coverage/lcov.info
