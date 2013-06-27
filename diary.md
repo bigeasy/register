@@ -108,3 +108,6 @@ mock standard out and standard error.
 
 What about streaming input? Do we always want to parse? Or do we want to only
 parse if it is specified by the script?
+
+Guessing MIME of inputs from testing; we can look for an initial `[` or `{`, but
+how do you buffer in that way? You can slurp I guess.
