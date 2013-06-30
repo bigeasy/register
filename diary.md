@@ -124,3 +124,7 @@ commad line. I'm going to build a runner anyway, so I might as well go ahead
 and make it so that it will run one off scripts. If if do this, yes, what I had
 was too clever by half, it's not important, this is not he most imporant work
 that I'm doing.
+
+## Reactor
+
+Too complicated for Stencil and Register. Need only the file find and dispatch.
