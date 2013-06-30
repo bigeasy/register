@@ -1,28 +1,40 @@
 #!/usr/bin/env node
 
-var fs = require('fs'), spawn = require('child_process').spawn, path = require('path');
+var fs = require('fs'), path = require('path');
 
-function execute (program, parameters, input, callback) {
-  var stdout = [], stderr = [], proc = spawn(program, parameters), count = 0;
-  proc.stderr.setEncoding('utf8');
-  proc.stderr.on('data', function (chunk) { stderr.push(chunk) });
-  proc.stdout.setEncoding('utf8');
-  proc.stdout.on('data', function (chunk) { stdout.push(chunk) });
-  proc.on('close', function (code) {
-    callback(null, code, stdout.join(''), stderr.join(''));
-  });
-}
-
-require('proof')(2, function (step, equal, say) {
+require('proof')(5, function (step, ok, equal) {
+  var run = require('../../register.bin'), stream = require('stream');
   step(function () {
-    var hello = path.join(__dirname, 'fixtures/hello.cgi.js');
-    execute(hello, [], '', step());
-  }, function (code, stdout, stderr) {
-    equal(stdout, 'Content-Type: text/plain\n\nHello, World!\n', 'execute');
-  }, function () {
-    var params = path.join(__dirname, 'fixtures/params.cgi.js');
-    execute(params, [ 'a==1', 'b=a b' ], '', step());
-  }, function (code, stdout, stderr) {
-    equal(stdout, 'Content-Type: text/plain\n\n{"a":"=1","b":"a b"}\n', 'params');
+    var stdout;
+    step(function () {
+      stdout = new stream.PassThrough;
+      run([ './t/register/fixtures/hello.cgi.js' ], null, stdout, null, step());
+    }, function () {
+      stdout.setEncoding('utf8');
+      equal(stdout.read(), 'Hello, World!\n', 'hello');
+    }, function () {
+      stdout = new stream.PassThrough;
+      run([ './t/register/fixtures/params.cgi.js', 'a==1', 'b=a b' ], null, stdout, null, step());
+    }, function () {
+      stdout.setEncoding('utf8');
+      equal(stdout.read(), '{"a":"=1","b":"a b"}\n', 'params');
+    }, function () {
+      stdout = new stream.PassThrough;
+      run([ './t/register/fixtures' ], null, stdout, null, step());
+    }, function (server) {
+      stdout.setEncoding('utf8');
+      ok(/server pid \d+ listening at 8386/.test(stdout.read()), 'start server');
+      server.close();
+      server.on('close', step.event());
+    }, function () {
+      run([ './t/register/fixtures/missing.cgi.js' ], null, null, null, step(Error));
+    }, function (error) {
+      equal(error.message, 'path not found', 'path not found');
+    }, function () {
+      var stderr = new stream.PassThrough;
+      run([], null, null, null, step(Error));
+    }, function (error) {
+      equal(error.message, 'path required', 'path not found');
+    });
   });
 });
