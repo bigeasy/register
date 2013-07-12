@@ -25,16 +25,16 @@ require('proof')(5, function (step, ok, equal) {
       stdout.setEncoding('utf8');
       ok(/server pid \d+ listening at 8386/.test(stdout.read()), 'start server');
       server.close();
-      server.on('close', step.event());
-    }, function () {
-      run([ './t/register/fixtures/missing.cgi.js' ], null, null, null, step(Error));
-    }, function (error) {
+      server.on('close', step(-1));
+    }, [function () {
+      run([ './t/register/fixtures/missing.cgi.js' ], null, null, null, step());
+    }, function (_, error) {
       equal(error.message, 'path not found', 'path not found');
-    }, function () {
+    }], [function () {
       var stderr = new stream.PassThrough;
-      run([], null, null, null, step(Error));
-    }, function (error) {
+      run([], null, null, null, step());
+    }, function (_, error) {
       equal(error.message, 'path required', 'path not found');
-    });
+    }]);
   });
 });

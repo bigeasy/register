@@ -76,13 +76,13 @@ exports.once = cadence(function (step, cwd, path, args) {
 
     var response = request({ timeout: 1000, uri: url.format(parsed) });
 
-    response.on('error', step.error());
+    response.on('error', step(Error));
     response.on('end', close);
 
     response.end();
 
     step(function () {
-      response.on('response', step.event());
+      response.on('response', step(-1));
     }, function () {
       return response;
     });
@@ -111,7 +111,7 @@ exports.runner = cadence(function (step, options, stdin, stdout, stderr) {
         exports.once(path.resolve(process.cwd(), directory), location, options.argv, step());
       }, function (request) {
         request.pipe(stdout);
-        request.on('end', step.event());
+        request.on('end', step(-1));
       })
       else step(function () {
         exports.createServer(8386, directory, true, step());

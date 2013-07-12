@@ -11,7 +11,7 @@ require('proof')(2, function (step, deepEqual, ok) {
     output.setEncoding('utf8');
     request.pipe(output);
     step(function () {
-      request.on('end', step.event());
+      request.on('end', step(-1));
     }, function () {
       deepEqual(JSON.parse(output.read()), { a: 'b' }, 'body');
     });

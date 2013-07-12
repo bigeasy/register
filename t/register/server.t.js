@@ -10,13 +10,13 @@ require('proof')(2, function (step, equal, ok) {
     var port = first.address().port;
     step(function () {
       createServer(8386, directory, true, step());
-    }, function (second) {
+    }, [function (second) {
       ok(port < second.address().port, 'probed');
       second.close();
-      createServer(8386, directory, false, step(Error));
-    }, function (error) {
+      createServer(8386, directory, false, step());
+    }, function (_, error) {
       equal(error.code, 'EADDRINUSE', 'address in use');
       first.close();
-    });
+    }]);
   });
 });
