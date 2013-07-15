@@ -1,7 +1,10 @@
-var cadence = require('cadence'), fs = require('fs'), path = require('path')
+var cadence = require('cadence')
+var fs = require('fs')
+var path = require('path')
 
 exports.createServer = function (port, directory, probe, callback) {
-    var http = require('http'), server = http.createServer()
+    var http = require('http')
+    var server = http.createServer()
 
     var routes = exports.routes(directory)
     server.on('request', function (request, response) {
@@ -22,7 +25,8 @@ exports.createServer = function (port, directory, probe, callback) {
 
 exports.argParser = function (path, args) {
     args = args.slice()
-    var url = require('url'), parsed
+    var url = require('url')
+    var parsed
     if (/^\s*\//.test(args[0]) || /^[^=:]+:/.test(args[0])) {
         parsed = url.parse(args.shift(), true)
     } else {
@@ -37,12 +41,15 @@ exports.argParser = function (path, args) {
 }
 
 exports.routes = function routes (base) {
-      var find = require('reactor/find'),
-          path = require('path'),
-          reactor = require('reactor').createReactor(),
-          compiled = {},
-          url = require('url')
+      var find = require('reactor/find')
+      var path = require('path')
+
+      var reactor = require('reactor').createReactor()
+
+      var url = require('url')
       var routes = find(base, 'cgi.js')
+      var compiled = {}
+
       routes.forEach(function (route) {
           var file = path.join(base, route.script)
           compiled[file] = require(file)
@@ -50,6 +57,7 @@ exports.routes = function routes (base) {
               callback(null, compiled[file])
           })
       })
+
       return function (request, response, callback) {
           var uri = url.parse(request.url, true),
               found = reactor.react(request.method, uri.pathname, function (error, script) {
@@ -63,7 +71,9 @@ exports.routes = function routes (base) {
 }
 
 exports.once = cadence(function (step, cwd, path, args) {
-    var url = require('url'), request = require('request')
+    var url = require('url')
+    var request = require('request')
+
     step(function () {
         exports.createServer(8386, cwd, true, step())
     }, function (server) {
@@ -90,8 +100,11 @@ exports.once = cadence(function (step, cwd, path, args) {
 })
 
 exports.runner = cadence(function (step, options, stdin, stdout, stderr) {
-    var directory, location
+    var directory
+    var location
+
     if (!options.argv.length) options.abend('path required')
+
     step(function () {
         location = options.argv.shift()
         step([function () {
