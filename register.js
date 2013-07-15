@@ -8,15 +8,20 @@ exports.createServer = function (port, directory, probe, callback) {
 
     var routes = exports.routes(directory)
     server.on('request', function (request, response) {
-        routes(request, response, function () {})
+        routes(request, response, function (error) {
+            if (error) throw error
+        })
     })
 
-    server.on('error', function (e) {
+    server.on('error', nextPort)
+
+    function nextPort (e) {
         if (!probe || e.code != 'EADDRINUSE') callback(e)
         else server.listen(++port, '127.0.0.1')
-    })
+    }
 
     server.on('listening', function () {
+        server.removeListener('error', nextPort)
         callback(null, server)
     })
 
@@ -27,17 +32,28 @@ exports.argParser = function (path, args) {
     args = args.slice()
     var url = require('url')
     var parsed
+    var object = { method: 'get' }
+
+    if (args[0] && /^[a-z]{3,}$/i.test(args[0])) {
+        object.method = args.shift().toLowerCase()
+    }
+
     if (/^\s*\//.test(args[0]) || /^[^=:]+:/.test(args[0])) {
         parsed = url.parse(args.shift(), true)
     } else {
         parsed = url.parse(path, true)
     }
+
     args.forEach(function (pair) {
         var $ = /^([^=])*(?:=(.*))$/.exec(pair)
         parsed.query[$[1]] = $[2]
     })
+
     delete parsed.search
-    return url.parse(url.format(parsed), true)
+
+    object.url = url.parse(url.format(parsed), true)
+
+    return object
 }
 
 exports.routes = function routes (base) {
@@ -61,16 +77,18 @@ exports.routes = function routes (base) {
       return function (request, response, callback) {
           var uri = url.parse(request.url, true),
               found = reactor.react(request.method, uri.pathname, function (error, script) {
-              script({ request: request, response: response }, function (error) {
-                  if (error) callback(error)
-                  else callback(null, true)
+                  script({ request: request, response: response }, function (error) {
+                      if (error) callback(error)
+                      else callback(null, true)
+                  })
               })
-          })
           if (!found) callback(null, false)
       }
 }
 
-exports.once = cadence(function (step, cwd, path, args) {
+// TODO: Probably needs to return an object to shut it down, or an event emitter
+// of some kind, so that the caller can handle all errors. A curious case.
+exports.once = cadence(function (step, cwd, path, args, stdin) {
     var url = require('url')
     var request = require('request')
 
@@ -79,17 +97,25 @@ exports.once = cadence(function (step, cwd, path, args) {
     }, function (server) {
         function close () { server.close() }
 
-        var parsed = exports.argParser(path, args)
+        server.on('error', function () { throw new Error })
+
+        var object = exports.argParser(path, args)
+        var parsed = object.url
+
         parsed.protocol = 'http'
         parsed.hostname = '127.0.0.1'
         parsed.port = server.address().port
 
-        var response = request({ timeout: 1000, uri: url.format(parsed) })
+        var response = request({ method: parsed.method, timeout: 1000, uri: url.format(parsed) })
 
         response.on('error', step(Error))
         response.on('end', close)
 
-        response.end()
+        if (object.method != 'get') {
+            stdin.pipe(response)
+        } else {
+            response.end()
+        }
 
         step(function () {
             response.on('response', step(-1))
@@ -121,7 +147,7 @@ exports.runner = cadence(function (step, options, stdin, stdout, stderr) {
             }
             directory = path.resolve(process.cwd(), directory)
             if (location) step(function () {
-                exports.once(path.resolve(process.cwd(), directory), location, options.argv, step())
+                exports.once(path.resolve(process.cwd(), directory), location, options.argv, stdin, step())
             }, function (request) {
                 request.pipe(stdout)
                 request.on('end', step(-1))

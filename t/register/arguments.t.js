@@ -2,7 +2,7 @@
 
 require('proof')(4, function (step, deepEqual, ok) {
     var parser = require('../../register').argParser
-    deepEqual(parser('./script.cgi.js', [ 'http://alan:password@www.foo.com:8080/hello?a=b#c' ]), {
+    deepEqual(parser('./script.cgi.js', [ 'http://alan:password@www.foo.com:8080/hello?a=b#c' ]).url, {
         protocol: 'http:',
         slashes: true,
         auth: 'alan:password',
@@ -16,7 +16,7 @@ require('proof')(4, function (step, deepEqual, ok) {
         path: '/hello?a=b',
         href: 'http://alan:password@www.foo.com:8080/hello?a=b#c'
     }, 'full url')
-    deepEqual(parser('./script.cgi.js', [ ' /hello?a=b#c' ]), {
+    deepEqual(parser('./script.cgi.js', [ ' /hello?a=b#c' ]).url, {
         protocol: null,
         slashes: null,
         auth: null,
@@ -30,7 +30,7 @@ require('proof')(4, function (step, deepEqual, ok) {
         path: '/hello?a=b',
         href: '/hello?a=b#c'
     }, 'path url')
-    deepEqual(parser('./script.cgi.js', [ ' /hello?a=b#c', 'd=e f' ]), {
+    deepEqual(parser('./script.cgi.js', [ ' /hello?a=b#c', 'd=e f' ]).url, {
         protocol: null,
         slashes: null,
         auth: null,
@@ -44,7 +44,7 @@ require('proof')(4, function (step, deepEqual, ok) {
         path: '/hello?a=b&d=e%20f',
         href: '/hello?a=b&d=e%20f#c'
     }, 'path and parameters')
-    deepEqual(parser('./script.cgi.js', [ 'a=b', 'd=e f' ]), {
+    deepEqual(parser('./script.cgi.js', [ 'a=b', 'd=e f' ]).url, {
         protocol: null,
         slashes: null,
         auth: null,
