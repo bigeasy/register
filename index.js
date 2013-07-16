@@ -98,21 +98,7 @@ function execute () {
     });
   });
 
-  if (caller === require.main) {
-    var output = new stream.PassThrough(), url = require('url'), query = {};
-    process.argv.slice(2).forEach(function (pair) {
-      var $ = /^([^=])*(?:=(.*))$/.exec(pair);
-      query[$[1]] = $[2];
-    });
-    var request = {};
-    request.url = url.format({ pathname: caller.filename, query: query });
-    output.pipe(process.stdout);
-    script({ request: request, output: output, printHeaders: true }, function (error) {
-      if (error) throw error;
-    });
-  } else {
-    caller.exports = script;
-  }
+  caller.exports = script;
 }
 
 module.exports = execute;
