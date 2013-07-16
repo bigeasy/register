@@ -57,33 +57,33 @@ exports.argParser = function (path, args) {
 }
 
 exports.routes = function routes (base) {
-      var find = require('reactor/find')
-      var path = require('path')
+    var find = require('reactor/find')
+    var path = require('path')
 
-      var reactor = require('reactor').createReactor()
+    var reactor = require('reactor').createReactor()
 
-      var url = require('url')
-      var routes = find(base, 'cgi.js')
-      var compiled = {}
+    var url = require('url')
+    var routes = find(base, 'cgi.js')
+    var compiled = {}
 
-      routes.forEach(function (route) {
-          var file = path.join(base, route.script)
-          compiled[file] = require(file)
-          reactor.get(route.route, function (params, callback) {
-              callback(null, compiled[file])
-          })
-      })
+    routes.forEach(function (route) {
+        var file = path.join(base, route.script)
+        compiled[file] = require(file)
+        reactor.get(route.route, function (params, callback) {
+            callback(null, compiled[file])
+        })
+    })
 
-      return function (request, response, callback) {
-          var uri = url.parse(request.url, true),
-              found = reactor.react(request.method, uri.pathname, function (error, script) {
-                  script({ request: request, response: response }, function (error) {
-                      if (error) callback(error)
-                      else callback(null, true)
-                  })
-              })
-          if (!found) callback(null, false)
-      }
+    return function (request, response, callback) {
+        var uri = url.parse(request.url, true),
+            found = reactor.react(request.method, uri.pathname, function (error, script) {
+                script({ request: request, response: response }, function (error) {
+                    if (error) callback(error)
+                    else callback(null, true)
+                })
+            })
+        if (!found) callback(null, false)
+    }
 }
 
 // TODO: Probably needs to return an object to shut it down, or an event emitter
