@@ -45,7 +45,7 @@ exports.argParser = function (path, args) {
     }
 
     args.forEach(function (pair) {
-        var $ = /^([^=])*(?:=(.*))$/.exec(pair)
+        var $ = /^([^=]*)(?:=(.*))$/.exec(pair)
         parsed.query[$[1]] = $[2]
     })
 
@@ -78,8 +78,21 @@ exports.routes = function routes (base) {
         var uri = url.parse(request.url, true),
             found = reactor.react(request.method, uri.pathname, function (error, script) {
                 script({ request: request, response: response }, function (error) {
-                    if (error) callback(error)
-                    else callback(null, true)
+                    if (error) {
+                        if (('statusCode' in error) && !response.headersSent) {
+                            var headers = error.headers || {}
+                            for (var name in headers) {
+                                response.setHeader(name, headers[name])
+                            }
+                            response.statusCode = error.statusCode
+                            response.setHeader('content-type', 'text/html; charset=utf8')
+                            response.end(error.body || '', 'utf8')
+                        } else {
+                            callback(error)
+                        }
+                    } else {
+                        callback(null, true)
+                    }
                 })
             })
         if (!found) callback(null, false)

@@ -17,7 +17,7 @@ module.exports = function (dirname) {
             var stdout = new stream.PassThrough
             request.pipe(stdout)
             request.on('end', function () {
-                if (callback) callback(null, request.headers, stdout)
+                if (callback) callback(null, request.statusCode, request.headers, stdout)
             })
         })
     }

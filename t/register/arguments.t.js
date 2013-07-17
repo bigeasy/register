@@ -44,7 +44,7 @@ require('proof')(4, function (step, deepEqual, ok) {
         path: '/hello?a=b&d=e%20f',
         href: '/hello?a=b&d=e%20f#c'
     }, 'path and parameters')
-    deepEqual(parser('./script.cgi.js', [ 'a=b', 'd=e f' ]).url, {
+    deepEqual(parser('./script.cgi.js', [ 'az=b', 'd=e f' ]).url, {
         protocol: null,
         slashes: null,
         auth: null,
@@ -52,10 +52,10 @@ require('proof')(4, function (step, deepEqual, ok) {
         port: null,
         hostname: null,
         hash: null,
-        search: '?a=b&d=e%20f',
-        query: { a: 'b', d: 'e f' },
+        search: '?az=b&d=e%20f',
+        query: { az: 'b', d: 'e f' },
         pathname: './script.cgi.js',
-        path: './script.cgi.js?a=b&d=e%20f',
-        href: './script.cgi.js?a=b&d=e%20f'
+        path: './script.cgi.js?az=b&d=e%20f',
+        href: './script.cgi.js?az=b&d=e%20f'
   }, 'script and parameters')
 })
