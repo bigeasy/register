@@ -106,20 +106,20 @@ exports.once = cadence(function (step, cwd, path, args, stdin) {
         parsed.hostname = '127.0.0.1'
         parsed.port = server.address().port
 
-        var response = request({ method: parsed.method, timeout: 1000, uri: url.format(parsed) })
+        var req = request({ method: object.method, timeout: 1000, uri: url.format(parsed) })
 
-        response.on('error', step(Error))
-        response.on('end', close)
+        req.on('error', step(Error))
+        req.on('end', close)
 
         if (object.method != 'get') {
-            stdin.pipe(response)
+            stdin.pipe(req)
         } else {
-            response.end()
+            req.end()
         }
 
         step(function () {
-            response.on('response', step(-1))
-        }, function () {
+            req.on('response', step(-1))
+        }, function (response) {
             return response
         })
     })

@@ -5,14 +5,14 @@ require('proof')(2, function (step, deepEqual, ok) {
     var stream = require('stream')
     step(function () {
         once(__dirname, '/fixtures/params', ['a=b'], null, step())
-    }, function (request) {
-        deepEqual(request.response.headers['content-type'], 'text/plain', 'content type')
+    }, function (response) {
+        deepEqual(response.headers['content-type'], 'text/plain', 'content type')
 
         var output = new stream.PassThrough()
         output.setEncoding('utf8')
-        request.pipe(output)
+        response.pipe(output)
         step(function () {
-            request.on('end', step(-1))
+            response.on('end', step(-1))
         }, function () {
             deepEqual(JSON.parse(output.read()), { a: 'b' }, 'body')
         })

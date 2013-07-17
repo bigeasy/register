@@ -7,15 +7,15 @@ require('proof')(2, function (step, deepEqual, ok) {
         var input = new stream.PassThrough()
         input.end('a=1', 'utf8')
         once(__dirname, '/fixtures/post', ['post'], input, step())
-    }, function (request) {
+    }, function (response) {
         console.log('here')
-        deepEqual(request.response.headers['content-type'], 'text/plain', 'content type')
+        deepEqual(response.headers['content-type'], 'text/plain', 'content type')
 
         var output = new stream.PassThrough()
         output.setEncoding('utf8')
-        request.pipe(output)
+        response.pipe(output)
         step(function () {
-            request.on('end', step(-1))
+            response.on('end', step(-1))
         }, function () {
             deepEqual(output.read(), '{"a":1}', 'body')
         })
