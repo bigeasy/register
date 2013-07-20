@@ -61,8 +61,6 @@ exports.routes = function routes (base) {
     var find = require('reactor/find')
     var path = require('path')
 
-    var reactor = require('reactor').createReactor()
-
     var url = require('url')
     var routes = find(base, 'cgi.js')
     var compiled = {}
@@ -70,35 +68,33 @@ exports.routes = function routes (base) {
     routes.forEach(function (route) {
         var file = path.join(base, route.script)
         compiled[file] = require(file)
-        // TODO: so, you're telling me you don't want a callback, really, just
-        // some sort of a map of routes to objects?
-        reactor.get(route.route, function (params, callback) {
-            callback(null, compiled[file])
-        })
     })
 
+    var reactor = require('reactor')(routes)
+
     return function (request, response, callback) {
-        var uri = url.parse(request.url, true),
-            found = reactor.react(request.method, uri.pathname, function (error, script) {
-                script({ request: request, response: response }, function (error) {
-                    if (error) {
-                        if (('statusCode' in error) && !response.headersSent) {
-                            var headers = error.headers || {}
-                            for (var name in headers) {
-                                response.setHeader(name, headers[name])
-                            }
-                            response.statusCode = error.statusCode
-                            response.setHeader('content-type', 'text/html; charset=utf8')
-                            response.end(error.body || '', 'utf8')
-                        } else {
-                            callback(error)
-                        }
-                    } else {
-                        callback(null, true)
+        var uri = url.parse(request.url, true)
+        var found = reactor(uri.pathname)
+        // todo: multiple matches, sort out relative paths.
+        var script = path.join(base, found[0].script)
+        if (!found.length) callback(null, false)
+        else compiled[script]({ request: request, response: response }, function (error) {
+            if (error) {
+                if (('statusCode' in error) && !response.headersSent) {
+                    var headers = error.headers || {}
+                    for (var name in headers) {
+                        response.setHeader(name, headers[name])
                     }
-                })
-            })
-        if (!found) callback(null, false)
+                    response.statusCode = error.statusCode
+                    response.setHeader('content-type', 'text/html; charset=utf8')
+                    response.end(error.body || '', 'utf8')
+                } else {
+                    callback(error)
+                }
+            } else {
+                callback(null, true)
+            }
+        })
     }
 }
 

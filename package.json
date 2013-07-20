@@ -18,7 +18,7 @@
   { "proof": "0.0.32"
   , "connect": "~2"
   , "cadence": ">=0"
-  , "reactor": "0.0.5"
+  , "reactor": "0.0.6"
   , "arguable": ">=0"
   , "request": ">=0"
   , "uglify-js": "~1.3"

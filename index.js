@@ -4,15 +4,6 @@ var stream = require('stream'),
     cadence = require('cadence'),
     __slice = [].slice;
 
-/*
-function die () {
-  console.log.apply(console, __slice.call(arguments, 0));
-  process.exit(1);
-}
-
-function say () { console.log.apply(console, __slice.call(arguments, 0)) }
-*/
-
 function parameterize (program, context) {
   var $ = /^function\s*[^(]*\(([^)]*)\)/.exec(program.toString());
   ok($, "bad function");
@@ -40,61 +31,18 @@ function execute () {
       caller = vargs.shift(), program = vargs.shift();
 
   var script = cadence(function (step, options) {
-    var context = { headers: {}, step: step };
-    if (options.request) {
-      context.request = options.request;
-    } else if (!context.request) {
-      context.request = {};
-    }
-    if (!context.request.headers) {
-      context.request.headers = {};
-    }
-    if (options.response) {
-      context.response = options.response;
-    } else {
-      var headers = {}, headersSent = ! options.printHeaders, sendHeaders,
-          output = options.output || new stream.PassThrough;
-      if (require.main === caller) {
-        sendHeaders = function () {
-          var keys = Object.keys(headers);
-          keys.forEach(function (key) {
-            headers[key].forEach(function (value) {
-              output.write(key + ': ' + value + '\n');
-            });
-          });
-          if (keys.length) {
-            output.write('\n');
-          }
-        }
-      } else {
-        sendHeaders = function () {}
-      }
+    var context = { step: step };
 
-      context.step = step;
-      context.response = {
-        setHeader: function (header, value) {
-          headers[header] = Array.isArray(value) ? value : [value];
-        },
-        write: function () {
-          if (!headersSent) sendHeaders();
-          headersSent = true;
-          output.write.apply(output, arguments)
-        },
-        end: function () {
-          if (!headersSent) sendHeaders();
-          headersSent = true;
-          output.end.apply(output, arguments)
-        }
-      }
-    }
+    context.request = options.request;
+    context.response = options.response;
 
     step(function () {
       pipeline(middleware.slice(), context.request, context.response, step());
     }, function () {
       context.request.params = context.request.query;
       program.apply(this, parameterize(program, context));
-    }, function () {
-      step(null, headers, output);
+/*    }, function () {
+      step(null), headers, output);*/
     });
   });
 
