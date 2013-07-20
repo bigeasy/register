@@ -28,6 +28,7 @@ exports.createServer = function (port, directory, probe, callback) {
     server.listen(port, '127.0.0.1')
 }
 
+// todo: rename argvParser, I think
 exports.argParser = function (path, args) {
     args = args.slice()
     var url = require('url')
@@ -69,6 +70,8 @@ exports.routes = function routes (base) {
     routes.forEach(function (route) {
         var file = path.join(base, route.script)
         compiled[file] = require(file)
+        // TODO: so, you're telling me you don't want a callback, really, just
+        // some sort of a map of routes to objects?
         reactor.get(route.route, function (params, callback) {
             callback(null, compiled[file])
         })
