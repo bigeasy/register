@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html>
+<meta charset="utf-8">
+<title>Register</title>
+<link href="http://fonts.googleapis.com/css?family=ABeeZee|Inconsolata|Karla:400,700|Oxygen+Mono" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=Sorts+Mill+Goudy">
+<link rel="stylesheet" type="text/css" href="css/syntax.css">
+<link rel="stylesheet" type="text/css" href="css/register.css">
+<body><a href="https://github.com/bigeasy/register/"><img style="position: absolute; top: 0; left: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_left_gray_6d6d6d.png" alt="Fork me on GitHub"></a><div class="container">
+
+<div class="unit welcome">
+<h1>Register</h1>
+</div>
+<div class="unit description markdown"><p>A CGI-like router for building HTTP APIs that serves JavaScript programs from a
+directory.</p>
+<pre><code> 191  847 5823 README.md</code></pre>
+<h2>Getting Started</h2>
+<p>Register is a walk down memory lane to the good old days of Perl&#39;s CGI module.
+It is a CGI emulator for people who want to just start hacking away at the
+web program, script by script, until it&#39;s done.</p>
+<p>Register is great for writing web APIs. I built it to complement
+<a href="https://github.com/bigeasy/stencil">Stencil</a>, which is an API-only template
+language; instead of MVC, you have templates over and API. Because of this,
+Register focuses on building an API, not on generating HTML.</p>
+<h3>Install</h3>
+<p>Get Register with NPM.</p>
+<pre><code>install npm register</code></pre>
+<p>Make a directory in which to build your Register application.</p>
+<pre><code class="lang-console">$ mkdir ./app
+$ vim ./app/greet.cgi.js</code></pre>
+<p>Then you want to create a Register program.</p>
+<pre><code class="lang-javascript"><div class="highlight"><pre><span class="nx">require</span><span class="p">(</span><span class="s1">&#39;register&#39;</span><span class="p">)(</span><span class="nx">module</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">params</span><span class="p">,</span> <span class="nx">response</span><span class="p">)</span> <span class="p">{</span>
+  <span class="nx">response</span><span class="p">.</span><span class="nx">setHeader</span><span class="p">(</span><span class="s1">&#39;Content-Type&#39;</span><span class="p">,</span> <span class="s1">&#39;text/plain&#39;</span><span class="p">);</span>
+  <span class="nx">response</span><span class="p">.</span><span class="nx">end</span><span class="p">(</span><span class="nx">params</span><span class="p">.</span><span class="nx">greeting</span> <span class="o">+</span> <span class="s1">&#39;, World!&#39;</span><span class="p">);</span>
+<span class="p">});</span>
+</pre></div>
+</code></pre>
+<p>Now you can run your Register web application.</p>
+<pre><code class="lang-javascript"><div class="highlight"><pre><span class="nx">$</span> <span class="nx">register</span> <span class="p">.</span><span class="o">/</span><span class="nx">app</span>
+<span class="nx">Register</span> <span class="nx">listening</span> <span class="nx">on</span> <span class="nx">port</span> <span class="mi">8386</span> <span class="nx">pid</span> <span class="mi">981</span><span class="p">.</span>
+</pre></div>
+</code></pre>
+<p>Test it out from the command line.</p>
+<pre><code>$ curl http://localhost:8386/greet?greeting=Hello
+TK What does curl say here? Or what switches do I use go get only the body?
+Hello, World!</code></pre>
+<h3>Minimal Register Script</h3>
+<p>A minimal Register script will set a content type and write a result.</p>
+<pre><code class="lang-javascript"><div class="highlight"><pre><span class="nx">require</span><span class="p">(</span><span class="s1">&#39;register&#39;</span><span class="p">)(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">params</span><span class="p">,</span> <span class="nx">response</span><span class="p">)</span> <span class="p">{</span>
+  <span class="nx">response</span><span class="p">.</span><span class="nx">setHeader</span><span class="p">(</span><span class="s1">&#39;Content-Type&#39;</span><span class="p">,</span> <span class="s1">&#39;text/plain&#39;</span><span class="p">);</span>
+  <span class="nx">response</span><span class="p">.</span><span class="nx">end</span><span class="p">(</span><span class="nx">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">(</span><span class="nx">params</span> <span class="o">||</span> <span class="p">{})</span> <span class="o">+</span> <span class="s1">&#39;\n&#39;</span><span class="p">);</span>
+<span class="p">});</span>
+</pre></div>
+</code></pre>
+<h3>Running a Register Script at the Command Line</h3>
+<p>You can now run you script from the command line to debug it. You can run it
+directly or run it through a debugger.</p>
+<pre><code class="lang-javascript"><div class="highlight"><pre><span class="nx">$</span> <span class="nx">node</span> <span class="nx">params</span><span class="p">.</span><span class="nx">cgi</span><span class="p">.</span><span class="nx">js</span> <span class="s1">&#39;name=register&amp;number=1&#39;</span>
+<span class="nx">Content</span><span class="o">-</span><span class="nx">Type</span><span class="o">:</span> <span class="nx">text</span><span class="o">/</span><span class="nx">plain</span>
+
+<span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="o">:</span><span class="s2">&quot;register&quot;</span><span class="p">,</span><span class="s2">&quot;number&quot;</span><span class="o">:</span><span class="mi">1</span><span class="p">}</span>
+</pre></div>
+</code></pre>
+<h3>Testing Register Scripts with Mock Requests</h3>
+<p>Testing your register scripts is simplified by a mock request wrapper. Here we
+create at test that is a simple Node.js program, but you can use the mock
+request wrapper in the test framework of your choice.</p>
+<pre><code class="lang-javascript"><div class="highlight"><pre><span class="kd">var</span> <span class="nx">deepEqual</span> <span class="o">=</span> <span class="nx">require</span> <span class="p">(</span><span class="s1">&#39;assert&#39;</span><span class="p">).</span><span class="nx">deepEqual</span><span class="p">;</span>
+<span class="kd">var</span> <span class="nx">request</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;register/request&#39;</span><span class="p">)(</span><span class="nx">require</span><span class="p">);</span>
+
+<span class="nx">request</span><span class="p">(</span><span class="s1">&#39;./hello.cgi.js&#39;</span><span class="p">,</span> <span class="p">{</span> <span class="nx">name</span><span class="o">:</span> <span class="s1">&#39;register&#39;</span><span class="p">,</span> <span class="nx">number</span><span class="o">:</span> <span class="mi">1</span> <span class="p">},</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">headers</span><span class="p">,</span> <span class="nx">body</span><span class="p">)</span> <span class="p">{</span>
+  <span class="nx">deepEqual</span><span class="p">(</span><span class="nx">headers</span><span class="p">[</span><span class="s1">&#39;Content-Type&#39;</span><span class="p">],</span> <span class="s1">&#39;text/plain&#39;</span><span class="p">,</span> <span class="s1">&#39;headers are copacetic&#39;</span><span class="p">);</span>
+  <span class="nx">deepEqual</span><span class="p">(</span><span class="nx">JSON</span><span class="p">.</span><span class="nx">parse</span><span class="p">(</span><span class="nx">body</span><span class="p">),</span> <span class="p">{</span> <span class="nx">name</span><span class="o">:</span> <span class="s1">&#39;register&#39;</span><span class="p">,</span> <span class="nx">number</span><span class="o">:</span> <span class="mi">1</span> <span class="p">},</span> <span class="s1">&#39;body is copacetic&#39;</span><span class="p">);</span>
+<span class="p">});</span>
+</pre></div>
+</code></pre>
+<p>Note how we pass our <code>require</code> to the <code>request</code> function builder. It allows the
+<code>request</code> function to find scripts relative to the location of the test.</p>
+<h3>Serving Up Your Register Scripts</h3>
+<p>TK: Run the register server.</p>
+<h3>Embedding Register in Your Web Application</h3>
+<p>Register works with Sencha Connect to add Register scripts to your web service.
+We can create a service using a directory and add it to a Sencha Connect app.</p>
+<pre><code class="lang-javascript"><div class="highlight"><pre><span class="kd">var</span> <span class="nx">service</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;register/service&#39;</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">connect</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;connect&#39;</span><span class="p">);</span>
+
+<span class="kd">var</span> <span class="nx">app</span> <span class="o">=</span> <span class="nx">connect</span><span class="p">()</span>
+      <span class="p">.</span><span class="nx">use</span><span class="p">(</span><span class="nx">service</span><span class="p">.</span><span class="nx">create</span><span class="p">(</span><span class="s1">&#39;./scripts&#39;</span><span class="p">))</span>
+      <span class="p">.</span><span class="nx">listen</span><span class="p">(</span><span class="mi">8082</span><span class="p">);</span>
+</pre></div>
+</code></pre>
+<h2>Routing</h2>
+<p>Register uses the directory driven <a href="https://github.com/bigeasy/reactor">Reactor</a>
+router to generate the routes for your web application. It follows some
+conventions that convert the path of a script in a directory tree to the url
+path in your application.</p>
+<p>Let&#39;s use this example directory.</p>
+<pre><code>./
+  ./params.cgi.js
+  ./index.cgi.js
+  ./utility.js
+  ./configuration.txt
+  ./articles/index.cgi.js
+  ./articles/edit_.cgi.js</code></pre>
+<h3>Routing File Suffix</h3>
+<p>Only the files ending with <code>.cgi.js</code> are considered for addition to the path by
+the service. The file basename is used for the file path so that <code>params.cgi.js</code>
+in the directory is requested by the url <code>http://localhost/params</code>.</p>
+<h3>Index Files</h3>
+<p>If the file base name is <code>index</code> as in <code>index.cgi.js</code>, then that is the script
+that is run when url matches the directory name. <code>index.cgi.js</code> is run for the
+root url <code>http://localhost/</code>.</p>
+<h3>Path Slurping Files</h3>
+<p>If the file base name ends with an underscore, the script will match a url path.
+The <code>./articles/edit_.cgi.js</code> will match <code>http://localhost/articles/edit</code>.
+Additionally, it will also match any sub-paths, so it would also match</p>
+<ul>
+<li><code>http://localhost/edit/1</code></li>
+<li><code>http://localhost/edit/how-to-use-register</code></li>
+<li><code>http://localhost/edit/2005/02/14</code></li>
+</ul>
+<p>The path would be passed into script as a <code>pathInfo</code> property of the <code>request</code>
+object.</p>
+<p>This is all inspired by the good old days of creating web sites by letting them
+sprawl out over a directory on your web server. If you want to change the URL
+paths of your program, simply rename your files and move them into a different
+directory. There&#39;s no need to update your routing DSL. What you see is what you
+get.</p>
+<h2>Writing Scripts</h2>
+<p>A Register script is a JavaScript program that wraps a JavaScript function. It
+is a simple construct that maps a URL to a single function through a directory
+tree. The function acts as a run-of-the-mill request handler function for a
+server created with the Node.js HTTP API. It inspects the <code>request</code> object and
+sends response through the <code>response</code>object .</p>
+<p>With Register we create our request handlers in files that we can copy between
+applications — gasp! — like in the good old days script archives. We
+can reorganize the routing of our application by reorganizing our scripts. When
+we look at our scripts in a tree view of the directory, we&#39;re seeing</p>
+<h3>Respond to a Request</h3>
+<p>We respond to a request by writing a response using the <code>response</code> object. The
+<code>request</code> object contains details about the request, like the URL, query
+parameters, and request headers. The <code>response</code> object contains methods for
+writing a message the browser can see.</p>
+<p>You know this already if you&#39;ve done any web programming with Node.js, these are
+the <code>request</code> and <code>response</code> objects created by the Node.js HTTP server.</p>
+<h3>Getting a Parsed URL</h3>
+<p>The <code>request</code> object has a URL property, but it is just a string. To do anything
+meaningful with that URL, we need to parse it — we need to split it up
+into it&#39;s component parts.</p>
+<p>Register will save us a step and give us a parsed <code>url</code> if we request it. We
+request a parsed url simply by adding the parameter <code>url</code> to our handler
+function.</p>
+<h3>Handling Parameters</h3>
+<p>With our parsed URL we can inspect parameters using the <code>query</code> property of the
+parsed url.</p>
+<h3>Handling Path Information</h3>
+<h2>Errors and Redirects</h2>
+<p>To send errors we use the <code>control</code> object, or do we?</p>
+<p>Must be sent before body is sent.</p>
+<h3>Sending Errors</h3>
+<h3>Sending Redirects</h3>
+<h3>Rerouting</h3>
+<h2>Asynchronous Control Flow</h2>
+<p>With Cadence.</p>
+<h2>API</h2>
+<h3><code>register = require(&#39;register&#39;)</code></h3>
+<h3><code>request = require(&#39;register/request&#39;)(require)</code></h3>
+<p>Exports a single function used to build a request wrapper. Pass</p>
+<h4><code>request(path, query, callback(error, headers, body))</code></h4>
+<p>Invokes a GET request on the Register script at <code>path</code>. The script path is
+relative to the <code>require</code> of the calling script. (See the function builder above
+for details on how that is possible.)</p>
+<p>The <code>query</code> is an object used to form the query part of a query string. The
+<code>callback</code> is the standard callback for a Register script with the following
+parameters;</p>
+<ul>
+<li><code>path</code> — Path to the Register script relative to the calling module.</li>
+<li><code>query</code> — An object used to form the query part of a query string.</li>
+<li><code>callback</code> — the standard callback for a mocked call to Register script.
+<strong> <code>error</code> — error if any.
+</strong> <code>headers</code> — a map of headers.
+** <code>body</code> — the body as a pass-through stream.</li>
+</ul>
+<h2>Change Log</h2>
+<p>Changes for each release.</p>
+<h3>Version 0.0.0</h3>
+<p>Mon Mar 25 18:44:29 UTC 2013</p>
+<ul>
+<li>Serve a basic script from the file system though HTTP. #8. #7. #6. #5.</li>
+<li>Run a script as a program. #4.</li>
+</ul>
+</div>
+
+</div></body>
+<script>
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-20388260-3', 'bigeasy.github.io');
+ga('send', 'pageview');
+</script>
+</html>
