@@ -128,3 +128,37 @@ that I'm doing.
 ## Reactor
 
 Too complicated for Stencil and Register. Need only the file find and dispatch.
+
+## Verbs
+
+I surrender. Let's do verbs.
+
+```
+on.load(function (step) {
+    step(function () {
+        require('database').connect(step())
+    }, function (connection) {
+        this.connection = connection
+    })
+})
+
+on.unload(function (step) {
+    step(function () {
+        this.connection.close(step())
+    })
+})
+
+on.get(function (request) {
+    fs.fileReadStream(request.url.path.substring(1)).pipe(request)
+})
+
+on.post(function (request) {
+    request.pipe(fs.fileWriteStream(request.url.path.substring(1)))
+})
+
+on.delete(function (step, request) {
+    step(function () {
+        fs.unlink(request.url.path.substring(1), step())
+    })
+})
+```
