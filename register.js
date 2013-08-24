@@ -28,8 +28,7 @@ exports.createServer = function (port, directory, probe, callback) {
     server.listen(port, '127.0.0.1')
 }
 
-// todo: rename argvParser, I think
-exports.argParser = function (path, args) {
+exports.argvParser = function (path, args) {
     args = args.slice()
     var url = require('url')
     var parsed
@@ -111,7 +110,7 @@ exports.once = cadence(function (step, cwd, path, args, stdin) {
 
         server.on('error', function () { throw new Error })
 
-        var object = exports.argParser(path, args)
+        var object = exports.argvParser(path, args)
         var parsed = object.url
 
         parsed.protocol = 'http'

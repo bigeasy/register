@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 require('proof')(4, function (step, deepEqual, ok) {
-    var parser = require('../../register').argParser
+    var parser = require('../../register').argvParser
     deepEqual(parser('./script.cgi.js', [ 'http://alan:password@www.foo.com:8080/hello?a=b#c' ]).url, {
         protocol: 'http:',
         slashes: true,
