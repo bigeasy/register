@@ -57,7 +57,7 @@ exports.argvParser = function (path, args) {
 }
 
 exports.routes = function routes (base) {
-    var find = require('reactor/find')
+    var find = require('avenue')
     var path = require('path')
 
     var url = require('url')
@@ -69,13 +69,13 @@ exports.routes = function routes (base) {
         compiled[file] = require(file)
     })
 
-    var reactor = require('reactor')(routes)
+    var reactor = require('locate')(routes)
 
     return function (request, response, callback) {
         var uri = url.parse(request.url, true)
         var found = reactor(uri.pathname)
         // todo: multiple matches, sort out relative paths.
-        var script = path.join(base, found[0].script)
+        var script = path.join(base, found[0].route.script)
         if (!found.length) callback(null, false)
         else compiled[script]({ request: request, response: response }, function (error) {
             if (error) {
