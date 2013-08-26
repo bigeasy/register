@@ -8,7 +8,6 @@ require('proof')(2, function (step, deepEqual, ok) {
         input.end('a=1', 'utf8')
         once(__dirname, '/fixtures/post', ['post'], input, step())
     }, function (response) {
-        console.log('here')
         deepEqual(response.headers['content-type'], 'text/plain', 'content type')
 
         var output = new stream.PassThrough()

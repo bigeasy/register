@@ -1,6 +1,8 @@
+var path    = require('path')
+var fs      = require('fs')
+
 var cadence = require('cadence')
-var fs = require('fs')
-var path = require('path')
+var connect = require('connect')
 
 exports.createServer = function (port, directory, probe, callback) {
     var http = require('http')
@@ -56,29 +58,88 @@ exports.argvParser = function (path, args) {
     return object
 }
 
+function Register (file) {
+    this._file = file
+    this._handlers = {}
+}
+
+'get post'.split(/\s/).forEach(function (verb) {
+    Register.prototype[verb] = function (handler) {
+        this._handlers[verb] = handler
+        return this
+    }
+})
+
+var middleware = [ connect.bodyParser(), connect.query() ]
+
+function pipeline (methods, request, response, callback) {
+    if (methods.length) {
+        var method = methods.shift()
+        method(request, response, function (error) {
+            if (error) callback(error)
+            else pipeline(methods, request, response, callback)
+        })
+    } else {
+        callback(null, request, response)
+    }
+}
+
+function parameterize (program, context) {
+    var $ = /^function\s*[^(]*\(([^)]*)\)/.exec(program.toString())
+    if (!$) throw new Error("bad function")
+    return $[1].trim().split(/\s*,\s*/).map(function (parameter) {
+        return context[parameter]
+    })
+}
+
+var compiled = []
+
 exports.routes = function routes (base) {
     var find = require('avenue')
     var path = require('path')
 
     var url = require('url')
     var routes = find(base, 'cgi.js')
-    var compiled = {}
 
     routes.forEach(function (route) {
         var file = path.join(base, route.script)
-        compiled[file] = require(file)
+        if (!compiled[file]) {
+            try {
+                global.on = compiled[file] = new Register(file)
+                require(file)
+            } finally {
+                delete global.on
+            }
+        }
     })
 
     var reactor = require('locate')(routes)
 
-    return function (request, response, callback) {
+    return cadence(function (step, request, response) {
+        var method = request.method.toLowerCase()
         var uri = url.parse(request.url, true)
-        var found = reactor(uri.pathname)
+        var found = reactor(uri.pathname).map(function (match) {
+            // todo: resolve?
+            var script = path.join(base, match.route.script)
+            return {
+                params: match.params,
+                register: compiled[script]
+            }
+        }).filter(function (match) {
+            return match.register._handlers[method]
+        })
         // todo: multiple matches, sort out relative paths.
-        var script = path.join(base, found[0].route.script)
-        if (!found.length) callback(null, false)
-        else compiled[script]({ request: request, response: response }, function (error) {
-            if (error) {
+        if (found.length) {
+            var context = { request: request, response: response, step: step }
+            if (found[0].params) {
+                request.params = found[0].params
+            }
+            step(function () {
+                pipeline(middleware.slice(), request, response, step());
+            }, [function () {
+                var handler = found[0].register._handlers[method]
+                handler.apply(context, parameterize(handler, context))
+            }, function (errors, error) {
                 if (('statusCode' in error) && !response.headersSent) {
                     var headers = error.headers || {}
                     for (var name in headers) {
@@ -88,13 +149,15 @@ exports.routes = function routes (base) {
                     response.setHeader('content-type', 'text/html; charset=utf8')
                     response.end(error.body || '', 'utf8')
                 } else {
-                    callback(error)
+                    throw errors
                 }
-            } else {
-                callback(null, true)
-            }
-        })
-    }
+            }], function () {
+                return true
+            })
+        } else {
+            return false
+        }
+    })
 }
 
 // TODO: Probably needs to return an object to shut it down, or an event emitter

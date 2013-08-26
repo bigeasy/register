@@ -1,6 +1,4 @@
-#!/usr/bin/env node
-
-require('../../..')(module, function (step, response) {
-  response.setHeader("Content-Type", "text/plain");
-  response.end("Hello, World!\n");
-});
+on.get(function (response) {
+    response.setHeader("Content-Type", "text/plain")
+    response.end("Hello, World!\n")
+})

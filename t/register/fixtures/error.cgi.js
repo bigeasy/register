@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
-require('../../..')(module, function (step, response) {
-  throw new Error('errored');
-});
+on.get(function () {
+    throw new Error('errored')
+})

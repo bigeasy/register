@@ -1,7 +1,5 @@
-#!/usr/bin/env node
-
-require('../../..')(module, function (step, request, response) {
-  response.setHeader("Content-Type", "text/plain");
-  response.write(JSON.stringify(request.params || {}) + '\n');
-  response.end();
-});
+on.get(function (request, response) {
+    response.setHeader("Content-Type", "text/plain")
+    response.write(JSON.stringify(request.query || {}) + '\n')
+    response.end()
+})
