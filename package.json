@@ -17,11 +17,11 @@
 , "devDependencies":
   { "proof": "0.0.33"
   , "connect": "~2"
-  , "cadence": ">=0"
+  , "cadence": "*"
   , "reactor": "0.0.6"
-  , "arguable": ">=0"
-  , "request": ">=0"
+  , "arguable": "*"
+  , "request": "*"
   , "uglify-js": "~1.3"
   }
-, "dependencies": { "cadence": "0.0.15" }
+, "dependencies": { "cadence": "*" }
 }
