@@ -20,7 +20,7 @@
     },
     "devDependencies":
     {
-                          "proof": "0.0.33",
+                          "proof": "*",
                           "connect": "~2",
                           "reactor": "0.0.6",
                           "arguable": "*",
