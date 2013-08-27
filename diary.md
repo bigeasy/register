@@ -162,3 +162,14 @@ on.delete(function (step, request) {
     })
 })
 ```
+
+## Multiple Routes
+
+Considering muliple routes, I'm imaginging --pre and --post and they are
+additional directories where you can place register scripts. They all get run in
+order. The first one to send headers stops processing, except. No, fine. The
+first one to send headers or raise an error stops processing.
+
+You can also use the properties of Avenue. Avenue will run scripts that match,
+like `pathInfo` scripts, prior to running any scripts that are descendants.
+Actually, I've not tested this yet, but it is a behavior I intend to support.
