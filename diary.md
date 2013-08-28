@@ -173,3 +173,8 @@ first one to send headers or raise an error stops processing.
 You can also use the properties of Avenue. Avenue will run scripts that match,
 like `pathInfo` scripts, prior to running any scripts that are descendants.
 Actually, I've not tested this yet, but it is a behavior I intend to support.
+
+## Errors
+
+Should errors be returned as JSON? I believe so. Currently I'm returning them as
+plain text, but the caller is probably expecting JSON.
