@@ -178,3 +178,12 @@ Actually, I've not tested this yet, but it is a behavior I intend to support.
 
 Should errors be returned as JSON? I believe so. Currently I'm returning them as
 plain text, but the caller is probably expecting JSON.
+
+## Middleware
+
+I'm going to make the most of Connect middleware. I'd like to add a means by
+which to specify middleware to the script API. I imagine that there is default
+middleware for body parsing and query parsing for all requests, but you can
+either add or reset. Perhaps you specify middleware yourself using Register?
+
+If so, then before I specify middleware, I need to sort out multiple routes.
