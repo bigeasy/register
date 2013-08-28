@@ -30,20 +30,29 @@ exports.createServer = function (port, directory, probe, callback) {
     server.listen(port, '127.0.0.1')
 }
 
-exports.argvParser = function (path, args) {
+exports.argvParser = function (cwd, file, args) {
     args = args.slice()
     var url = require('url')
-    var parsed
     var object = { method: 'get' }
+    var parsed, $
+
+    if ($ = /^(.*?)\/\/(.*)$/.exec(file)) {
+        object.directory = path.resolve(cwd, $[1])
+        file = $[2]
+    } else {
+        object.directory = path.resolve(cwd, path.dirname(file))
+        file = path.basename(file)
+    }
 
     if (args[0] && /^[a-z]{3,}$/i.test(args[0])) {
         object.method = args.shift().toLowerCase()
     }
 
+    // todo: no. only invoke as intended. do not specify alternate path.
     if (/^\s*\//.test(args[0]) || /^[^=:]+:/.test(args[0])) {
         parsed = url.parse(args.shift(), true)
     } else {
-        parsed = url.parse(path, true)
+        parsed = url.parse(file, true)
     }
 
     args.forEach(function (pair) {
@@ -165,15 +174,15 @@ exports.routes = function routes (base) {
 exports.once = cadence(function (step, cwd, path, args, stdin) {
     var url = require('url')
     var request = require('request')
+    var object = exports.argvParser(cwd, path, args)
 
     step(function () {
-        exports.createServer(8386, cwd, true, step())
+        exports.createServer(8386, object.directory, true, step())
     }, function (server) {
         function close () { server.close() }
 
         server.on('error', function () { throw new Error })
 
-        var object = exports.argvParser(path, args)
         var parsed = object.url
 
         parsed.protocol = 'http'
@@ -211,27 +220,23 @@ exports.runner = cadence(function (step, options, stdin, stdout, stderr) {
             fs.stat(location, step())
         }, /^ENOENT$/, function () {
             options.abend('path not found', location)
-        }], function (loc) {
-            if (loc.isDirectory()) {
-                directory = location
-                location = null
+        }], function (stat) {
+            if (stat.isDirectory() && ! /\/\//.test(location)) {
+                step(function () {
+                    exports.createServer(8386, path.resolve(process.cwd(), location), true, step())
+                }, function (server) {
+                    stdout.write('server pid ' + process.pid + ' listening at ' + server.address().port)
+                    return server
+                })
             } else {
-                directory = path.dirname(location)
-                location = path.basename(location).replace(/\.cgi\.js$/, '')
+                step(function () {
+                    location = location.replace(/\.cgi\.js$/, '')
+                    exports.once(process.cwd(), location, options.argv, stdin, step())
+                }, function (request) {
+                    request.pipe(stdout)
+                    request.on('end', step(-1))
+                })
             }
-            directory = path.resolve(process.cwd(), directory)
-            if (location) step(function () {
-                exports.once(path.resolve(process.cwd(), directory), location, options.argv, stdin, step())
-            }, function (request) {
-                request.pipe(stdout)
-                request.on('end', step(-1))
-            })
-            else step(function () {
-                exports.createServer(8386, directory, true, step())
-            }, function (server) {
-                stdout.write('server pid ' + process.pid + ' listening at ' + server.address().port)
-                return server
-            })
         })
     })
 })

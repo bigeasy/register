@@ -19,6 +19,7 @@ require('proof')(5, function (step, ok, equal) {
             stdout.setEncoding('utf8')
             equal(stdout.read(), '{"a":"=1","b":"a b"}\n', 'params')
         }, function () {
+            console.log('here')
             stdout = new stream.PassThrough
             run([ './t/register/fixtures' ], null, stdout, null, step())
         }, function (server) {
@@ -27,6 +28,7 @@ require('proof')(5, function (step, ok, equal) {
             server.close()
             server.on('close', step(-1))
         }, [function () {
+            console.log('there')
             run([ './t/register/fixtures/missing.cgi.js' ], null, null, null, step())
         }, function (_, error) {
             equal(error.message, 'path not found', 'path not found')

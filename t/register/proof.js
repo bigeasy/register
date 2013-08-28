@@ -1,0 +1,25 @@
+module.exports = require('proof')(function () {
+    var register = require('../../register')
+    var stream = require('stream')
+    var path = require('path')
+    return {
+        once: function (step, directory, argv, stdin) {
+            step(function () {
+                register.once(__dirname, directory, argv, stdin, step())
+            }, function (request) {
+                var stdout = new stream.PassThrough
+                stdout.setEncoding('utf8')
+                step(function () {
+                    request.pipe(stdout)
+                    request.on('end', step(-1))
+                }, function () {
+                    return {
+                        statusCode: request.statusCode,
+                        headers: request.headers,
+                        body: stdout.read()
+                    }
+                })
+            })
+        }
+    }
+})
