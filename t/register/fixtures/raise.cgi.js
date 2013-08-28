@@ -1,4 +1,3 @@
 on.get(function (raise) {
-    raise(302, { location: '/hello' })
-    throw new Error
+    raise(403, { 'X-NastyGram': 'Go away!' })
 })

@@ -6,7 +6,7 @@ var cadence = require('cadence')
 var connect = require('connect')
 
 function httpStatusMessage(statusCode) {
-    return statusCode + ' ' + http.STATUS_CODES[statusCode]
+    return statusCode + ' ' + http.STATUS_CODES[statusCode] + '\n'
 }
 
 exports.createServer = function (port, directory, probe, callback) {
