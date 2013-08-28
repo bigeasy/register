@@ -112,6 +112,15 @@ function parameterize (program, context) {
 
 var compiled = []
 
+function raise (statusCode, headers) {
+    var error = new Error
+    error.statusCode = statusCode
+    if (headers) {
+        error.headers = headers
+    }
+    throw error
+}
+
 exports.routes = function routes (base) {
     var find = require('avenue')
     var path = require('path')
@@ -148,7 +157,12 @@ exports.routes = function routes (base) {
         })
         // todo: multiple matches, sort out relative paths.
         if (found.length) {
-            var context = { request: request, response: response, step: step }
+            var context = {
+                step: step,
+                request: request,
+                response: response,
+                raise: raise
+            }
             if (found[0].params) {
                 request.params = found[0].params
             }
