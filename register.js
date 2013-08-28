@@ -1,17 +1,26 @@
 var path    = require('path')
 var fs      = require('fs')
+var http    = require('http')
 
 var cadence = require('cadence')
 var connect = require('connect')
 
+function httpStatusMessage(statusCode) {
+    return statusCode + ' ' + http.STATUS_CODES[statusCode]
+}
+
 exports.createServer = function (port, directory, probe, callback) {
-    var http = require('http')
     var server = http.createServer()
 
     var routes = exports.routes(directory)
     server.on('request', function (request, response) {
-        routes(request, response, function (error) {
+        routes(request, response, function (error, matched) {
             if (error) throw error
+            if (!matched) {
+                response.statusCode = 404
+                response.setHeader('content-type', 'text/plain; charset=utf8')
+                response.end(httpStatusMessage(404), 'utf8')
+            }
         })
     })
 
@@ -156,7 +165,7 @@ exports.routes = function routes (base) {
                     }
                     response.statusCode = error.statusCode
                     response.setHeader('content-type', 'text/html; charset=utf8')
-                    response.end(error.body || '', 'utf8')
+                    response.end(error.body || httpStatusMessage(error.statusCode), 'utf8')
                 } else {
                     throw errors
                 }
