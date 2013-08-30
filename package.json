@@ -20,17 +20,17 @@
     },
     "devDependencies":
     {
-                          "proof": "*",
+                          "proof": "0.0.36",
                           "connect": "~2",
-                          "arguable": "*",
-                          "request": "*",
+                          "arguable": "0.0.9",
+                          "request": "~2",
                           "uglify-js": "~1.3"
     },
     "dependencies":
     {
-                          "cadence": "*",
-                          "avenue": "*",
-                          "locate": "*"
+                          "cadence": "0.0.25",
+                          "avenue": "0.0.2",
+                          "locate": "0.0.8"
     },
     "scripts":
     {
