@@ -1,6 +1,7 @@
 var path    = require('path')
 var fs      = require('fs')
 var http    = require('http')
+var __slice = [].slice
 
 var cadence = require('cadence')
 var connect = require('connect')
@@ -88,20 +89,6 @@ function Register (file) {
     }
 })
 
-var middleware = [ connect.bodyParser(), connect.query() ]
-
-function pipeline (methods, request, response, callback) {
-    if (methods.length) {
-        var method = methods.shift()
-        method(request, response, function (error) {
-            if (error) callback(error)
-            else pipeline(methods, request, response, callback)
-        })
-    } else {
-        callback(null, request, response)
-    }
-}
-
 function parameterize (program, context) {
     var $ = /^function\s*[^(]*\(([^)]*)\)/.exec(program.toString())
     if (!$) throw new Error("bad function")
@@ -155,37 +142,54 @@ exports.routes = function routes (base) {
         }).filter(function (match) {
             return match.register._handlers[method]
         })
+        function middleware () {
+            var methods = __slice.call(arguments)
+            var callback = methods.pop()
+            if (methods.length) {
+                var method = methods.shift()
+                method(request, response, function (error) {
+                    if (error) callback(error)
+                    else middleware.apply(this, methods.concat(callback))
+                })
+                if (response.headersSent) {
+                    callback()
+                }
+            } else {
+                callback()
+            }
+        }
         // todo: multiple matches, sort out relative paths.
         if (found.length) {
-            var context = {
-                step: step,
-                request: request,
-                response: response,
-                raise: raise
-            }
-            if (found[0].params) {
-                request.params = found[0].params
-            }
-            step(function () {
-                pipeline(middleware.slice(), request, response, step());
-            }, [function () {
-                var handler = found[0].register._handlers[method]
-                handler.apply(context, parameterize(handler, context))
-            }, function (errors, error) {
-                if (('statusCode' in error) && !response.headersSent) {
-                    var headers = error.headers || {}
-                    for (var name in headers) {
-                        response.setHeader(name, headers[name])
-                    }
-                    response.statusCode = error.statusCode
-                    response.setHeader('content-type', 'text/html; charset=utf8')
-                    response.end(error.body || httpStatusMessage(error.statusCode), 'utf8')
-                } else {
-                    throw errors
+            step(function (match) {
+                var context = {
+                    step: step,
+                    request: request,
+                    response: response,
+                    middleware: middleware,
+                    raise: raise
                 }
-            }], function () {
-                return true
-            })
+                if (match.params) {
+                    request.params = match.params
+                }
+                step([function () {
+                    var handler = match.register._handlers[method]
+                    handler.apply(context, parameterize(handler, context))
+                }, function (errors, error) {
+                    if (('statusCode' in error) && !response.headersSent) {
+                        var headers = error.headers || {}
+                        for (var name in headers) {
+                            response.setHeader(name, headers[name])
+                        }
+                        response.statusCode = error.statusCode
+                        response.setHeader('content-type', 'text/html; charset=utf8')
+                        response.end(error.body || httpStatusMessage(error.statusCode), 'utf8')
+                    } else {
+                        throw errors
+                    }
+                }], function () {
+                    if (response.headersSent) step(null, true)
+                })
+            })(found)
         } else {
             return false
         }
