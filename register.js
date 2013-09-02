@@ -158,41 +158,36 @@ exports.routes = function routes (base) {
                 callback()
             }
         }
-        // todo: multiple matches, sort out relative paths.
-        if (found.length) {
-            step(function (match) {
-                var context = {
-                    step: step,
-                    request: request,
-                    response: response,
-                    middleware: middleware,
-                    raise: raise
-                }
-                if (match.params) {
-                    request.params = match.params
-                }
-                step([function () {
-                    var handler = match.register._handlers[method]
-                    handler.apply(context, parameterize(handler, context))
-                }, function (errors, error) {
-                    if (('statusCode' in error) && !response.headersSent) {
-                        var headers = error.headers || {}
-                        for (var name in headers) {
-                            response.setHeader(name, headers[name])
-                        }
-                        response.statusCode = error.statusCode
-                        response.setHeader('content-type', 'text/html; charset=utf8')
-                        response.end(error.body || httpStatusMessage(error.statusCode), 'utf8')
-                    } else {
-                        throw errors
+        step(function (match) {
+            var context = {
+                step: step,
+                request: request,
+                response: response,
+                middleware: middleware,
+                raise: raise
+            }
+            if (match.params) {
+                request.params = match.params
+            }
+            step([function () {
+                var handler = match.register._handlers[method]
+                handler.apply(context, parameterize(handler, context))
+            }, function (errors, error) {
+                if (('statusCode' in error) && !response.headersSent) {
+                    var headers = error.headers || {}
+                    for (var name in headers) {
+                        response.setHeader(name, headers[name])
                     }
-                }], function () {
-                    if (response.headersSent) step(null, true)
-                })
-            })(found)
-        } else {
-            return false
-        }
+                    response.statusCode = error.statusCode
+                    response.setHeader('content-type', 'text/html; charset=utf8')
+                    response.end(error.body || httpStatusMessage(error.statusCode), 'utf8')
+                } else {
+                    throw errors
+                }
+            }], function () {
+                if (response.headersSent) step(null, true)
+            })
+        })(found)
     })
 }
 
