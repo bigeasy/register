@@ -13,7 +13,7 @@ for file in $(find t -type d -name .AppleDouble -prune -o -name \*.t.js -print);
   fi
 done
 
-node_modules/.bin/istanbul cover -x 't/**' register.bin.js t/register/fixtures/params.cgi.js a=1 #> /dev/null 2>&1
+node_modules/.bin/istanbul cover -x 't/**' register.bin.js t/register/fixtures/query.cgi.js a=1 #> /dev/null 2>&1
 if [ -e coverage/coverage.json ]; then
   mv coverage/coverage.json coverage/coverage$count.json
   count=$(expr $count + 1)

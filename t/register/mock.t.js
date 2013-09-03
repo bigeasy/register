@@ -10,7 +10,7 @@ require('proof')(4, function (step, deepEqual, say) {
         deepEqual(headers['content-type'], 'text/plain', 'hello header')
         deepEqual(body.read(), 'Hello, World!\n', 'hello body')
     }, function () {
-        request('fixtures//params', { a: 1 }, step())
+        request('fixtures//query', { a: 1 }, step())
     }, function (statusCode, headers, body) {
         body.setEncoding('utf8')
         deepEqual(headers['content-type'], 'text/plain', 'param header')

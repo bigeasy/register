@@ -14,10 +14,10 @@ require('proof')(5, function (step, ok, equal) {
             equal(stdout.read(), 'Hello, World!\n', 'hello')
         }, function () {
             stdout = new stream.PassThrough
-            run([ './t/register/fixtures/params.cgi.js', 'a==1', 'b=a b' ], null, stdout, null, step())
+            run([ './t/register/fixtures/query.cgi.js', 'a==1', 'b=a b' ], null, stdout, null, step())
         }, function () {
             stdout.setEncoding('utf8')
-            equal(stdout.read(), '{"a":"=1","b":"a b"}\n', 'params')
+            equal(stdout.read(), '{"a":"=1","b":"a b"}\n', 'query')
         }, function () {
             console.log('here')
             stdout = new stream.PassThrough
