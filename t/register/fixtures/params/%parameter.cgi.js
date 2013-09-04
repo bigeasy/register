@@ -1,6 +1,5 @@
-on.get(function (request, response) {
-    console.log('foo foo foo')
+on.get(function (params, response) {
     response.setHeader("Content-Type", "text/plain")
-    response.write(JSON.stringify(request.params) + '\n')
+    response.write(JSON.stringify(params) + '\n')
     response.end()
 })

@@ -164,10 +164,8 @@ exports.routes = function routes (base) {
                 request: request,
                 response: response,
                 middleware: middleware,
-                raise: raise
-            }
-            if (match.params) {
-                request.params = match.params
+                raise: raise,
+                params: match.params
             }
             step([function () {
                 var handler = match.register._handlers[method]
