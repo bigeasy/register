@@ -1,7 +1,7 @@
 on.get(function (middleware, step) {
-    middleware(function () {
+    middleware(function (request, response, next) {
         var error = new Error
         error.statusCode = 403
-        throw error
+        next(error)
     }, step())
 })
