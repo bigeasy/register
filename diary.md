@@ -187,3 +187,13 @@ middleware for body parsing and query parsing for all requests, but you can
 either add or reset. Perhaps you specify middleware yourself using Register?
 
 If so, then before I specify middleware, I need to sort out multiple routes.
+
+Done, but I'm not going to get all the Sencha Middleware to work. Only the
+middleware that will always call the `next` function. Stopping when headers are
+sent is not working; not for static, which isn't going to send headers until it
+invokes `stat` asynchornously.
+
+I'd need to replace the `static` and `vhosts` middleware, but all the other
+middleware works correctly. I'm not going to create a lot of fragile shims. If
+it isn't a pass-through middleware, you can easily duplicate it with a Register
+script anyway. In fact, I could just create a wrapper package.
