@@ -16,8 +16,8 @@ exports.createServer = function (port, directory, probe, callback) {
     var routes = exports.routes(directory)
     server.on('request', function (request, response) {
         routes(request, response, function (error, matched) {
-            if (error) throw error
-            if (!matched) {
+            if (error) server.emit('error', error)
+            else if (!matched) {
                 response.statusCode = 404
                 response.setHeader('content-type', 'text/plain; charset=utf8')
                 response.end(httpStatusMessage(404), 'utf8')
@@ -201,8 +201,6 @@ exports.once = cadence(function (step, cwd, path, args, stdin) {
     }, function (server) {
         function close () { server.close() }
 
-        server.on('error', function () { throw new Error })
-
         var parsed = object.url
 
         parsed.protocol = 'http'
@@ -211,6 +209,7 @@ exports.once = cadence(function (step, cwd, path, args, stdin) {
 
         var req = request({ method: object.method, timeout: 1000, uri: url.format(parsed) })
 
+        server.once('error', step(Error))
         req.on('error', step(Error))
         req.on('end', close)
 
