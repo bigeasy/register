@@ -6,12 +6,13 @@ module.exports = require('proof')(function () {
         once: function (step, directory, argv, stdin) {
             step(function () {
                 register.once(__dirname, directory, argv, stdin, step())
-            }, function (request) {
+            }, function (request, server) {
                 var stdout = new stream.PassThrough
                 stdout.setEncoding('utf8')
                 step(function () {
                     request.pipe(stdout)
                     request.on('end', step(-1))
+                    if (!server.closed) server.on('close', step(-1))
                 }, function () {
                     return {
                         statusCode: request.statusCode,

@@ -145,15 +145,21 @@ exports.routes = function routes (base) {
         function middleware () {
             var methods = __slice.call(arguments)
             var callback = methods.pop()
+            var called
             if (methods.length) {
                 var method = methods.shift()
                 method(request, response, function (error) {
+                    called = true
+                    response.removeListener('headers', callback)
                     if (error) callback(error)
                     else middleware.apply(this, methods.concat(callback))
                 })
-                if (response.headersSent) {
-                    callback()
-                }
+                response.on('header', function () {
+                    if (!called) process.nextTick(function () {
+                        middleware.apply(this, methods.concat(callback))
+                    })
+                    called = true
+                })
             } else {
                 callback()
             }
@@ -210,8 +216,8 @@ exports.once = cadence(function (step, cwd, path, args, stdin) {
         var req = request({ method: object.method, timeout: 1000, uri: url.format(parsed) })
 
         server.once('error', step(Error))
+        server.on('close', function () { server.closed = true })
         req.on('error', step(Error))
-        req.on('end', close)
 
         if (object.method != 'get') {
             stdin.pipe(req)
@@ -221,8 +227,9 @@ exports.once = cadence(function (step, cwd, path, args, stdin) {
 
         step(function () {
             req.on('response', step(-1))
+            req.on('response', close)
         }, function (response) {
-            return response
+            step(null, response, server)
         })
     })
 })
