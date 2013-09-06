@@ -91,7 +91,6 @@ function Register (file) {
 
 function parameterize (program, context) {
     var $ = /^function\s*[^(]*\(([^)]*)\)/.exec(program.toString())
-    if (!$) throw new Error("bad function")
     return $[1].trim().split(/\s*,\s*/).map(function (parameter) {
         return context[parameter]
     })
