@@ -1,24 +1,23 @@
-var url = require('url')
-var once = require('./register').once
+var register = require('./register')
 var stream = require('stream')
+var cadence = require('cadence')
 
-module.exports = function (dirname) {
-    return function (script, parameters, callback) {
-        var argv = []
-        for (var key in parameters) {
-            argv.push(key + '=' + parameters[key])
-        }
-        once(dirname, script, argv, null, function (error, request) {
-            if (error) throw error
-            request.on('error', function (error) {
-                callback(error)
-                callback = null
-            })
-            var stdout = new stream.PassThrough
+module.exports = cadence(function (step, directory, argv, stdin) {
+    step(function () {
+        register.once(__dirname, directory, argv, stdin, step())
+    }, function (request, server) {
+        var stdout = new stream.PassThrough
+        stdout.setEncoding('utf8')
+        step(function () {
             request.pipe(stdout)
-            request.on('end', function () {
-                if (callback) callback(null, request.statusCode, request.headers, stdout)
-            })
+            request.on('end', step(-1))
+            if (!server.closed) server.on('close', step(-1))
+        }, function () {
+            return {
+                statusCode: request.statusCode,
+                headers: request.headers,
+                body: stdout.read()
+            }
         })
-    }
-}
+    })
+})
