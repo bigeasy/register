@@ -11,7 +11,7 @@ module.exports = cadence(function (step, directory, argv, stdin) {
         step(function () {
             request.pipe(stdout)
             request.on('end', step(-1))
-            if (!server.closed) server.on('close', step(-1))
+            server.on('close', step(-1))
         }, function () {
             return {
                 statusCode: request.statusCode,

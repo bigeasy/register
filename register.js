@@ -204,8 +204,6 @@ exports.once = cadence(function (step, cwd, path, args, stdin) {
     step(function () {
         exports.createServer(8386, object.directory, true, step())
     }, function (server) {
-        function close () { server.close() }
-
         var parsed = object.url
 
         parsed.protocol = 'http'
@@ -215,7 +213,6 @@ exports.once = cadence(function (step, cwd, path, args, stdin) {
         var req = request({ method: object.method, timeout: 1000, uri: url.format(parsed) })
 
         server.once('error', step(Error))
-        server.on('close', function () { server.closed = true })
         req.on('error', step(Error))
 
         if (object.method != 'get') {
@@ -226,9 +223,9 @@ exports.once = cadence(function (step, cwd, path, args, stdin) {
 
         step(function () {
             req.on('response', step(-1))
-            req.on('response', close)
         }, function (response) {
             step(null, response, server)
+            server.close()
         })
     })
 })
