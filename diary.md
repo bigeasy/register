@@ -116,7 +116,7 @@ Why not make this simple by making it difficult? Can the register program just
 start an HTTP server for the duration of a command line invocation for the sake
 of testing?
 
-## Signifcant Change
+## Significant Change
 
 Now that I can see that it would be easier to fire off the command line using a
 runner, I'm not starting to want to move away from the too clever use of the
