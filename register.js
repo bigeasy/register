@@ -138,9 +138,6 @@ exports.routes = function routes (base) {
                 params: match.params,
                 register: compiled[script]
             }
-        }).filter(function (match) {
-            return match.register._handlers[method] ||
-                   match.register._handlers.any
         })
         function middleware () {
             var methods = __slice.call(arguments)
@@ -173,23 +170,28 @@ exports.routes = function routes (base) {
                 raise: raise,
                 params: match.params
             }
-            step([function () {
+            step(function () {
+                if (method == 'post' && request.body && request.body._method) {
+                    method = request.body._method.toLowerCase()
+                }
                 var handler = match.register._handlers[method] ||
                               match.register._handlers.any
-                handler.apply(context, parameterize(handler, context))
-            }, function (errors, error) {
-                if (('statusCode' in error) && !response.headersSent) {
-                    var headers = error.headers || {}
-                    for (var name in headers) {
-                        response.setHeader(name, headers[name])
+                if  (handler) step([function () {
+                    handler.apply(context, parameterize(handler, context))
+                }, function (errors, error) {
+                    if (('statusCode' in error) && !response.headersSent) {
+                        var headers = error.headers || {}
+                        for (var name in headers) {
+                            response.setHeader(name, headers[name])
+                        }
+                        response.statusCode = error.statusCode
+                        response.setHeader('content-type', 'text/html; charset=utf8')
+                        response.end(error.body || httpStatusMessage(error.statusCode), 'utf8')
+                    } else {
+                        throw errors
                     }
-                    response.statusCode = error.statusCode
-                    response.setHeader('content-type', 'text/html; charset=utf8')
-                    response.end(error.body || httpStatusMessage(error.statusCode), 'utf8')
-                } else {
-                    throw errors
-                }
-            }], function () {
+                }])
+            }, function () {
                 if (response.headersSent) step(null, true)
             })
         })(found)
@@ -212,7 +214,15 @@ exports.once = cadence(function (step, cwd, path, args, stdin) {
         parsed.hostname = '127.0.0.1'
         parsed.port = server.address().port
 
-        var req = request({ method: object.method, timeout: 1000, uri: url.format(parsed) })
+        var req = request({
+            method: object.method,
+            timeout: 1000,
+            uri: url.format(parsed),
+            // todo: configurable, somehow
+            headers: {
+                "content-type": "application/x-www-form-urlencoded"
+            }
+        })
 
         server.once('error', step(Error))
         req.on('error', step(Error))
