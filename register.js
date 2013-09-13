@@ -82,7 +82,7 @@ function Register (file) {
     this._handlers = {}
 }
 
-'get post put'.split(/\s/).forEach(function (verb) {
+'any get post put'.split(/\s/).forEach(function (verb) {
     Register.prototype[verb] = function (handler) {
         this._handlers[verb] = handler
         return this
@@ -139,7 +139,8 @@ exports.routes = function routes (base) {
                 register: compiled[script]
             }
         }).filter(function (match) {
-            return match.register._handlers[method]
+            return match.register._handlers[method] ||
+                   match.register._handlers.any
         })
         function middleware () {
             var methods = __slice.call(arguments)
@@ -173,7 +174,8 @@ exports.routes = function routes (base) {
                 params: match.params
             }
             step([function () {
-                var handler = match.register._handlers[method]
+                var handler = match.register._handlers[method] ||
+                              match.register._handlers.any
                 handler.apply(context, parameterize(handler, context))
             }, function (errors, error) {
                 if (('statusCode' in error) && !response.headersSent) {
