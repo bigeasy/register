@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 var fs = require('fs'), path = require('path')
 
 require('proof')(5, function (step, ok, equal) {

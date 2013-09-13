@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 require('proof')(2, function (step, equal, ok) {
     var createServer = require('../../register').createServer,
         path = require('path'),

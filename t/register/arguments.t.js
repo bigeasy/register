@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 require('proof')(5, function (step, deepEqual, ok) {
     var parser = require('../../register').argvParser
     deepEqual(parser('/base', './script.cgi.js', [ 'http://alan:password@www.foo.com:8080/hello?a=b#c' ]).url, {

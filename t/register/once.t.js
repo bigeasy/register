@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 require('proof')(2, function (step, deepEqual, ok) {
     var once = require('../../register').once
     var stream = require('stream')

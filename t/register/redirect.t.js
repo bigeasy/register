@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 var once = require('../../once')
 
 require('proof')(2, function (step, deepEqual, say) {
