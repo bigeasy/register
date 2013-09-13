@@ -82,7 +82,7 @@ function Register (file) {
     this._handlers = {}
 }
 
-'get post'.split(/\s/).forEach(function (verb) {
+'get post put'.split(/\s/).forEach(function (verb) {
     Register.prototype[verb] = function (handler) {
         this._handlers[verb] = handler
         return this
