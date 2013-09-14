@@ -96,7 +96,7 @@ function parameterize (program, context) {
     })
 }
 
-var compiled = []
+var compiled = {}
 
 function raise (statusCode, headers) {
     var error = new Error
