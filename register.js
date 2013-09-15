@@ -82,7 +82,7 @@ function Register (file) {
     this._handlers = {}
 }
 
-'any get post put delete patch'.split(/\s/).forEach(function (verb) {
+'any get post put delete patch load'.split(/\s/).forEach(function (verb) {
     Register.prototype[verb] = function (handler) {
         this._handlers[verb] = handler
         return this
@@ -97,6 +97,7 @@ function parameterize (program, context) {
 }
 
 var compiled = {}
+var loaded = {}
 
 function raise (statusCode, headers) {
     var error = new Error
@@ -177,7 +178,15 @@ exports.routes = function routes (base) {
                 var handler = match.register._handlers[method] ||
                               match.register._handlers.any
                 if  (handler) step([function () {
-                    handler.apply(context, parameterize(handler, context))
+                    step(function () {
+                        var load = match.register._handlers.load
+                        if (load && !match.register.loaded) {
+                            load.apply(context, parameterize(load, context))
+                        }
+                    }, function () {
+                        match.register.loaded = true
+                        handler.apply(context, parameterize(handler, context))
+                    })
                 }, function (errors, error) {
                     if (('statusCode' in error) && !response.headersSent) {
                         var headers = error.headers || {}
