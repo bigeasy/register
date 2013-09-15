@@ -1,4 +1,4 @@
-require('./proof')(8, function (step, once, deepEqual, ok) {
+require('./proof')(8, function (step, once, deepEqual) {
     var stream = require('stream')
     step(function () {
         var input = new stream.PassThrough()
