@@ -29,7 +29,7 @@
     "dependencies":
     {
                           "cadence": "0.0.25",
-                          "avenue": "0.0.2",
+                          "avenue": "0.0.3",
                           "locate": "0.0.8"
     },
     "scripts":
