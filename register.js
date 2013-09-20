@@ -10,10 +10,10 @@ function httpStatusMessage(statusCode) {
     return statusCode + ' ' + http.STATUS_CODES[statusCode] + '\n'
 }
 
-exports.createServer = function (port, directory, probe, callback) {
+exports.createServer = function (port, directories, probe, callback) {
     var server = http.createServer()
 
-    var routes = exports.routes(directory)
+    var routes = createRoutes(directories)
     server.on('request', function (request, response) {
         routes(request, response, function (error, matched) {
             if (error) server.emit('error', error)
@@ -108,23 +108,26 @@ function raise (statusCode, headers) {
     throw error
 }
 
-exports.routes = function routes (base) {
+function createRoutes (directories) {
     var find = require('avenue')
     var path = require('path')
 
     var url = require('url')
-    var routes = find(base, 'cgi.js')
+    var routes = []
 
-    routes.forEach(function (route) {
-        var file = path.join(base, route.script)
-        if (!compiled[file]) {
-            try {
-                global.on = compiled[file] = new Register(file)
-                require(file)
-            } finally {
-                delete global.on
+    directories.forEach(function (directory) {
+        find(directory, 'cgi.js').forEach(function (route) {
+            var file = path.join(directory, route.script)
+            if (!compiled[file]) {
+                try {
+                    global.on = compiled[file] = new Register(file)
+                    require(file)
+                } finally {
+                    delete global.on
+                }
             }
-        }
+            routes.push(route)
+        })
     })
 
     var reactor = require('locate')(routes)
@@ -134,7 +137,7 @@ exports.routes = function routes (base) {
         var uri = url.parse(request.url, true)
         var found = reactor(uri.pathname).map(function (match) {
             // todo: resolve?
-            var script = path.join(base, match.route.script)
+            var script = path.join(match.route.base, match.route.script)
             return {
                 params: match.params,
                 register: compiled[script]
@@ -209,13 +212,14 @@ exports.routes = function routes (base) {
 
 // TODO: Probably needs to return an object to shut it down, or an event emitter
 // of some kind, so that the caller can handle all errors. A curious case.
-exports.once = cadence(function (step, cwd, path, args, stdin) {
+exports.once = cadence(function (step, cwd, path, params, args, stdin) {
     var url = require('url')
     var request = require('request')
     var object = exports.argvParser(cwd, path, args)
+    var pre = params.pre ? params.pre.split(require('path').delimiter) : []
 
     step(function () {
-        exports.createServer(8386, object.directory, true, step())
+        exports.createServer(8386, pre.concat([ object.directory ]), true, step())
     }, function (server) {
         var parsed = object.url
 
@@ -254,6 +258,7 @@ exports.once = cadence(function (step, cwd, path, args, stdin) {
 exports.runner = cadence(function (step, options, stdin, stdout, stderr) {
     var directory
     var location
+    var pre = options.params.pre ? options.params.pre.split(path.delimiter) : []
 
     if (!options.argv.length) options.abend('path required')
 
@@ -266,7 +271,7 @@ exports.runner = cadence(function (step, options, stdin, stdout, stderr) {
         }], function (stat) {
             if (stat.isDirectory() && ! /\/\//.test(location)) {
                 step(function () {
-                    exports.createServer(8386, path.resolve(process.cwd(), location), true, step())
+                    exports.createServer(8386, pre.concat([ path.resolve(process.cwd(), location) ]), true, step())
                 }, function (server) {
                     stdout.write('server pid ' + process.pid + ' listening at ' + server.address().port)
                     return server
@@ -274,7 +279,7 @@ exports.runner = cadence(function (step, options, stdin, stdout, stderr) {
             } else {
                 step(function () {
                     location = location.replace(/\.cgi\.js$/, '')
-                    exports.once(process.cwd(), location, options.argv, stdin, step())
+                    exports.once(process.cwd(), location, options.params, options.argv, stdin, step())
                 }, function (request) {
                     request.pipe(stdout)
                     request.on('end', step(-1))

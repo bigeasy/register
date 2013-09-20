@@ -5,6 +5,11 @@
   ___ usage: en_US ___
   usage: register <options> [path?name=value] [name=value] [name=value]
 
+  options:
+
+    -P,   --pre                     a separated path of directories to prepend
+                                    to application directory.
+
   ___ strings ___
 
     path required:

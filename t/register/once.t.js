@@ -2,7 +2,7 @@ require('proof')(2, function (step, deepEqual, ok) {
     var once = require('../../register').once
     var stream = require('stream')
     step(function () {
-        once(__dirname, 'fixtures//query', ['a=b'], null, step())
+        once(__dirname, 'fixtures//query', {}, ['a=b'], null, step())
     }, function (response) {
         deepEqual(response.headers['content-type'], 'text/plain', 'content type')
 

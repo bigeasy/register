@@ -4,7 +4,7 @@ require('proof')(2, function (step, deepEqual, ok) {
     step(function () {
         var input = new stream.PassThrough()
         input.end('a=1', 'utf8')
-        once(__dirname, 'fixtures//post', ['post'], input, step())
+        once(__dirname, 'fixtures//post', {}, ['post'], input, step())
     }, function (response) {
         deepEqual(response.headers['content-type'], 'text/plain', 'content type')
 
