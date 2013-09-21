@@ -95,7 +95,10 @@ simply an implementation of basic scripts. Maybe there is a shebang line or
 equiv so that one pass through does it all, so there's some way to take a sip of
 the file and see which handler will work with it.
 
- * Am I ignoring hidden files? dot files?
+Am I ignoring hidden files? dot files?
+
+Yes, by virtue of only creating scripts with a `cgi.js` suffix. Thus, you can
+put your cookie jar in the application directory. It will not get served.
 
 ## Concerns and Decisions
 
