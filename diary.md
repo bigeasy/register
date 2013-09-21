@@ -95,6 +95,8 @@ simply an implementation of basic scripts. Maybe there is a shebang line or
 equiv so that one pass through does it all, so there's some way to take a sip of
 the file and see which handler will work with it.
 
+ * Am I ignoring hidden files? dot files?
+
 ## Concerns and Decisions
 
 Do I add an `error`, `redirect` and `reroute` method to the response object or
