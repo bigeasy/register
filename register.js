@@ -133,6 +133,7 @@ function createRoutes (directories) {
     var reactor = require('locate')(routes)
 
     return cadence(function (step, request, response) {
+        var janitors = []
         var method = request.method.toLowerCase()
         var uri = url.parse(request.url, true)
         var found = reactor(uri.pathname).map(function (match) {
@@ -165,48 +166,66 @@ function createRoutes (directories) {
                 callback()
             }
         }
-        step(function (match) {
-            var context = {
-                step: step,
-                request: request,
-                response: response,
-                middleware: middleware,
-                raise: raise,
-                params: match.params
-            }
-            step(function () {
-                if (method == 'post' && request.body && request.body._method) {
-                    method = request.body._method.toLowerCase()
+        function janitor (janitor) { janitors.push(janitor) }
+        step(function () {
+            step(function (match) {
+                var context = {
+                    step: step,
+                    request: request,
+                    response: response,
+                    middleware: middleware,
+                    raise: raise,
+                    janitor: janitor,
+                    params: match.params
                 }
-                var handler = match.register._handlers[method] ||
-                              match.register._handlers.any
-                if  (handler) step([function () {
-                    step(function () {
-                        var load = match.register._handlers.load
-                        if (load && !match.register.loaded) {
-                            load.apply(context, parameterize(load, context))
-                        }
-                    }, function () {
-                        match.register.loaded = true
-                        handler.apply(context, parameterize(handler, context))
-                    })
-                }, function (errors, error) {
-                    if (('statusCode' in error) && !response.headersSent) {
-                        var headers = error.headers || {}
-                        for (var name in headers) {
-                            response.setHeader(name, headers[name])
-                        }
-                        response.statusCode = error.statusCode
-                        response.setHeader('content-type', 'text/html; charset=utf8')
-                        response.end(error.body || httpStatusMessage(error.statusCode), 'utf8')
-                    } else {
-                        throw errors
+                step(function () {
+                    if (method == 'post' && request.body && request.body._method) {
+                        method = request.body._method.toLowerCase()
                     }
-                }])
+                    var handler = match.register._handlers[method] ||
+                                  match.register._handlers.any
+                    if  (handler) step([function () {
+                        step(function () {
+                            var load = match.register._handlers.load
+                            if (load && !match.register.loaded) {
+                                load.apply(context, parameterize(load, context))
+                            }
+                        }, function () {
+                            match.register.loaded = true
+                            handler.apply(context, parameterize(handler, context))
+                        })
+                    }, function (errors, error) {
+                        if (('statusCode' in error) && !response.headersSent) {
+                            var headers = error.headers || {}
+                            for (var name in headers) {
+                                response.setHeader(name, headers[name])
+                            }
+                            response.statusCode = error.statusCode
+                            response.setHeader('content-type', 'text/html; charset=utf8')
+                            response.end(error.body || httpStatusMessage(error.statusCode), 'utf8')
+                        } else {
+                            throw errors
+                        }
+                    }])
+                }, function () {
+                    if (response.headersSent) step(null, true)
+                })
+            })(found)
+        }, function (response) {
+            step(function () {
+                janitors.forEach(step([], function (janitor) {
+                    var context = {
+                        step: step,
+                        request: request,
+                        response: response,
+                        raise: raise
+                    }
+                    janitor.apply(context,  parameterize(janitor, context))
+                }))
             }, function () {
-                if (response.headersSent) step(null, true)
+                return response
             })
-        })(found)
+        })
     })
 }
 
